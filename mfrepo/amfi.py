@@ -4,8 +4,14 @@ import pandas as pd, requests
 from . import config as C
 
 NAVALL_URL = "https://portal.amfiindia.com/spages/NAVAll.txt"
+NAVALL_URLS = [NAVALL_URL, "https://www.amfiindia.com/spages/NAVAll.txt"]
 HIST_URL = "https://portal.amfiindia.com/DownloadNAVHistoryReport_Po.aspx?frmdt={f}&todt={t}"
-CAT_RE = re.compile(r"^(Open Ended|Close Ended|Interval Fund) Schemes?\s*\((.+)\)\s*$", re.I)
+CAT_RE = re.compile(r"^(Open[\s-]*Ended|Close[\s-]*Ended|Interval[\s-]*Funds?)\s*Schemes?\s*\((.+)\)\s*$", re.I)
+
+
+def _kind(raw):
+    r = raw.lower().replace("-", " ")
+    return "Open Ended" if r.startswith("open") else "Close Ended" if r.startswith("close") else "Interval Fund"
 
 
 def _get(url, tries=4):
@@ -41,11 +47,11 @@ def parse_navall(text):
             continue
         m = CAT_RE.match(s)
         if m:
-            kind, cat = m.group(1).title(), m.group(2).strip()
+            kind, cat = _kind(m.group(1)), m.group(2).strip()
             continue
-        parts = s.split(";")
-        if len(parts) == 6 and parts[0].strip().isdigit():
-            code, isin_g, isin_r, name, nav, date = [p.strip() for p in parts]
+        parts = [p.strip() for p in s.split(";")]
+        if len(parts) >= 6 and parts[0].isdigit():
+            code, isin_g, isin_r, name, nav, date = parts[0], parts[1], parts[2], parts[3], parts[4], parts[-1]
             plan, opt = _plan_option(name)
             rows.append(dict(amfi_code=int(code), isin_growth=isin_g if isin_g not in ("-", "") else None,
                              isin_reinv=isin_r if isin_r not in ("-", "") else None, scheme_name=name,
@@ -58,10 +64,37 @@ def parse_navall(text):
     return pd.DataFrame(rows)
 
 
+def _looks_like_navall(text):
+    head = text[:3000].lower()
+    return "scheme code" in head and "<html" not in head
+
+
 def scheme_master():
-    df = parse_navall(_get(NAVALL_URL))
-    df = df[(df.scheme_type == "Open Ended") & df.category_group.isin(C.KEEP_GROUPS)]
-    return df.reset_index(drop=True)
+    """Download NAVAll.txt (tries each AMFI address) and keep open-ended schemes."""
+    text, problems = None, []
+    for url in NAVALL_URLS:
+        try:
+            t = _get(url)
+        except Exception as e:
+            problems.append(f"{url}: {e}")
+            continue
+        if _looks_like_navall(t):
+            text = t
+            break
+        problems.append(f"{url}: unexpected content ({len(t):,} chars). Starts with: {t[:300]!r}")
+    if text is None:
+        raise RuntimeError("AMFI scheme master not usable (likely blocked or format changed):\n  "
+                           + "\n  ".join(problems))
+    df = parse_navall(text)
+    if df.empty:
+        raise RuntimeError("NAVAll.txt downloaded but no scheme rows parsed. First 500 chars:\n"
+                           + repr(text[:500]))
+    print(f"  AMFI master: {len(df):,} rows; scheme types: {df.scheme_type.value_counts(dropna=False).to_dict()}")
+    keep = df[(df.scheme_type == "Open Ended") & df.category_group.isin(C.KEEP_GROUPS)]
+    if keep.empty:
+        raise RuntimeError("No open-ended schemes in kept groups. Category groups seen: "
+                           + str(df.category_group.value_counts().head(15).to_dict()))
+    return keep.reset_index(drop=True)
 
 
 def parse_history(text, keep_codes=None):
