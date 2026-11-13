@@ -1,0 +1,36 @@
+name: Refresh MF data
+
+on:
+  schedule:
+    - cron: "30 21 1,15 * *"   # 03:00 IST on the 2nd and 16th of every month
+  workflow_dispatch: {}          # "Run workflow" button for a manual refresh
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Restore daily history cache
+        uses: actions/cache@v4
+        with:
+          path: data_cache
+          key: mfdata-${{ github.run_id }}
+          restore-keys: mfdata-
+      - name: Build data
+        run: python -m mfrepo.build
+      - name: Commit outputs
+        run: |
+          git config user.name  "mf-data-bot"
+          git config user.email "mf-data-bot@users.noreply.github.com"
+          git add data
+          git commit -m "Data refresh $(date -u +%F)" || echo "No changes"
+          git push
