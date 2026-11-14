@@ -152,17 +152,58 @@ def _fetch_hist(d, e, keep_codes, log):
     return pd.DataFrame(columns=["amfi_code", "date", "nav"])
 
 
+MFAPI_URL = "https://api.mfapi.in/mf/{code}?startDate={s}&endDate={e}"
+MFAPI_WORKERS = 8
+
+
+def _mfapi_one(code, start, end):
+    """Full NAV history for one scheme from mfapi.in (a mirror of AMFI's NAV data)."""
+    url = MFAPI_URL.format(code=code, s=start.isoformat(), e=end.isoformat())
+    for i in range(4):
+        try:
+            r = requests.get(url, headers=C.HTTP_HEADERS, timeout=60)
+            if r.status_code == 404:
+                return None
+            r.raise_for_status()
+            data = r.json().get("data") or []
+            if not data:
+                return None
+            df = pd.DataFrame(data)
+            df["date"] = pd.to_datetime(df["date"], format="%d-%m-%Y", errors="coerce")
+            df["nav"] = pd.to_numeric(df["nav"], errors="coerce")
+            df = df.dropna()
+            df = df[(df.date >= pd.Timestamp(start)) & (df.date <= pd.Timestamp(end)) & (df.nav > 0)]
+            return df.assign(amfi_code=int(code))[["amfi_code", "date", "nav"]]
+        except Exception:
+            if i == 3:
+                raise
+            time.sleep(3 * (i + 1))
+
+
 def nav_history(start, end, keep_codes, log=print):
-    frames, d, empty_streak = [], start, 0
-    while d <= end:
-        e = min(d + dt.timedelta(days=C.NAV_CHUNK_DAYS - 1), end)
-        part = _fetch_hist(d, e, keep_codes, log if empty_streak < 2 else (lambda *_: None))
-        log(f"  NAV {d} → {e}: {len(part):,} rows")
-        empty_streak = 0 if len(part) else empty_streak + 1
-        if empty_streak >= 3 and not any(len(x) for x in frames):
-            raise RuntimeError("AMFI NAV history returned no usable rows for 3 windows in a row; "
-                               "see DIAG lines above for what AMFI sent back.")
-        frames.append(part)
-        d = e + dt.timedelta(days=1)
-        time.sleep(1)
-    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame(columns=["amfi_code", "date", "nav"])
+    """Daily NAVs for the given schemes, via mfapi.in (AMFI's own history download now
+    returns a web form instead of data, so it can't be automated)."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    codes = sorted(keep_codes)
+    log(f"  Fetching NAV history for {len(codes):,} schemes from mfapi.in …")
+    frames, failed, empty = [], [], 0
+    with ThreadPoolExecutor(MFAPI_WORKERS) as ex:
+        futs = {ex.submit(_mfapi_one, c, start, end): c for c in codes}
+        for n, f in enumerate(as_completed(futs), 1):
+            try:
+                df = f.result()
+                if df is None or not len(df):
+                    empty += 1
+                else:
+                    frames.append(df)
+            except Exception as e:
+                failed.append(futs[f])
+            if n % 500 == 0 or n == len(codes):
+                log(f"    {n:,}/{len(codes):,} done | with data {len(frames):,} | empty {empty:,} | failed {len(failed):,}")
+    if failed:
+        log(f"  WARNING: {len(failed)} schemes failed to download, e.g. {failed[:10]}")
+    if not frames:
+        raise RuntimeError("mfapi.in returned no NAV data for any scheme.")
+    out = pd.concat(frames, ignore_index=True)
+    log(f"  NAV rows: {len(out):,} for {out.amfi_code.nunique():,} schemes")
+    return out
