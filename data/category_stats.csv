@@ -1,0 +1,6 @@
+peer_group,cat_avg_ret_ytd,cat_avg_ret_1y,cat_avg_ret_3y,cat_avg_ret_5y,cat_avg_roll3y_avg,cat_avg_sd_3y,cat_avg_sharpe_3y,cat_avg_beta_3y,cat_avg_alpha_3y,cat_avg_up_capture,cat_avg_down_capture,cat_avg_capture_ratio,schemes,as_of
+Equity Scheme - Mid Cap Fund | Regular,3.0098,2.0204,13.2778,13.2384,21.1526,18.6016,0.2905,,,,,,7,2026-11-14
+Equity Scheme - Multi Cap Fund | Regular,-2.4628,-2.7549,7.9407,,,16.0953,-0.0004,,,,,,4,2026-11-14
+Other Scheme - Other  ETFs | BSE LIQUID RATE | Regular,4.3259,4.9985,,,,,,,,,,,1,2026-11-14
+Other Scheme - Other  ETFs | NIFTY 1D RATE LIQUID | Regular,4.268,4.9288,,,,,,,,,,,5,2026-11-14
+Other Scheme - Other  ETFs | NIFTY GROWTH SECTORS 15 | Regular,-5.6655,-3.119,7.3567,,,17.2846,-0.0301,,,,,,1,2026-11-14
