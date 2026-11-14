@@ -44,6 +44,14 @@ def fake_get(url):
     return "\n".join(out)
 
 
+def fake_mfapi(code, start, end):
+    if code not in PATH:
+        return None
+    x = PATH[code]
+    x = x[(x.index >= pd.Timestamp(start)) & (x.index <= pd.Timestamp(end))]
+    return pd.DataFrame({"amfi_code": code, "date": x.index, "nav": x.values})
+
+
 def fake_year(s, name, start, end):
     x = TRI[name]
     x = x[(x.index >= pd.Timestamp(start)) & (x.index <= pd.Timestamp(end))]
@@ -56,6 +64,7 @@ def run():
         setattr(C, k, tmp / k.lower())
     amfi._get = fake_get
     amfi.time.sleep = lambda *_: None
+    amfi._mfapi_one = fake_mfapi
     indices._fetch_year = fake_year
     indices._session = lambda: None
     indices.time.sleep = lambda *_: None
