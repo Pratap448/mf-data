@@ -97,30 +97,71 @@ def scheme_master():
     return keep.reset_index(drop=True)
 
 
+HIST_URLS = [HIST_URL, "https://www.amfiindia.com/DownloadNAVHistoryReport_Po.aspx?frmdt={f}&todt={t}"]
+
+
 def parse_history(text, keep_codes=None):
+    """NAV history report -> (amfi_code, date, nav). Columns are found from the header line,
+    so extra/reordered columns don't break it; falls back to the classic 8-column layout."""
+    i_code, i_nav, i_date = 0, 4, 7
     out = []
     for line in text.splitlines():
-        p = line.split(";")
-        if len(p) >= 8 and p[0].strip().isdigit():
-            code = int(p[0])
+        p = [x.strip() for x in line.split(";")]
+        low = [x.lower() for x in p]
+        if low and low[0].startswith("scheme code"):
+            for j, h in enumerate(low):
+                if h.startswith("scheme code"): i_code = j
+                elif "net asset value" in h or h == "nav": i_nav = j
+                elif h == "date" or h.startswith("nav date") or h.endswith(" date"): i_date = j
+            continue
+        if len(p) > max(i_code, i_nav, i_date) and p[i_code].isdigit():
+            code = int(p[i_code])
             if keep_codes is not None and code not in keep_codes:
                 continue
-            out.append((code, p[4].strip(), p[7].strip()))
+            out.append((code, p[i_nav], p[i_date]))
     if not out:
         return pd.DataFrame(columns=["amfi_code", "date", "nav"])
     df = pd.DataFrame(out, columns=["amfi_code", "nav", "date"])
-    df["nav"] = pd.to_numeric(df["nav"], errors="coerce")
-    df["date"] = pd.to_datetime(df["date"], format="%d-%b-%Y", errors="coerce")
+    df["nav"] = pd.to_numeric(df["nav"].str.replace(",", ""), errors="coerce")
+    d = pd.to_datetime(df["date"], format="%d-%b-%Y", errors="coerce")
+    if d.isna().mean() > 0.5:  # other date styles, e.g. 13-11-2026 or 2026-11-13
+        d = pd.to_datetime(df["date"], dayfirst=True, errors="coerce")
+    df["date"] = d
     return df.dropna()[["amfi_code", "date", "nav"]]
 
 
+def _fetch_hist(d, e, keep_codes, log):
+    """One date window; tries each AMFI address. Logs what came back if nothing parses."""
+    f, t = d.strftime("%d-%b-%Y"), e.strftime("%d-%b-%Y")
+    notes = []
+    for u in HIST_URLS:
+        url = u.format(f=f, t=t)
+        try:
+            text = _get(url)
+        except Exception as ex:
+            notes.append(f"{url} -> error {ex}")
+            continue
+        part = parse_history(text, keep_codes)
+        if len(part):
+            return part
+        all_rows = len(parse_history(text))
+        notes.append(f"{url} -> {len(text):,} chars, {all_rows:,} rows before scheme filter; "
+                     f"starts: {text[:400]!r}")
+    for n in notes:
+        log("    DIAG " + n)
+    return pd.DataFrame(columns=["amfi_code", "date", "nav"])
+
+
 def nav_history(start, end, keep_codes, log=print):
-    frames, d = [], start
+    frames, d, empty_streak = [], start, 0
     while d <= end:
         e = min(d + dt.timedelta(days=C.NAV_CHUNK_DAYS - 1), end)
-        url = HIST_URL.format(f=d.strftime("%d-%b-%Y"), t=e.strftime("%d-%b-%Y"))
-        part = parse_history(_get(url), keep_codes)
+        part = _fetch_hist(d, e, keep_codes, log if empty_streak < 2 else (lambda *_: None))
         log(f"  NAV {d} → {e}: {len(part):,} rows")
+        empty_streak = 0 if len(part) else empty_streak + 1
+        if empty_streak >= 3 and not any(len(x) for x in frames):
+            raise RuntimeError("AMFI NAV history returned no usable rows for 3 windows in a row; "
+                               "see DIAG lines above for what AMFI sent back.")
         frames.append(part)
         d = e + dt.timedelta(days=1)
         time.sleep(1)

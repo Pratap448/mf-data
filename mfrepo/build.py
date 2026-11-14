@@ -100,6 +100,8 @@ def main(offline=False):
     if not offline:
         navs = refresh_navs(master, today)
         tri = refresh_tri(sorted(set(master.benchmark_index.dropna())), today)
+    if navs is None or not len(navs):
+        raise RuntimeError("No NAV history available, so nothing to compute. Check the NAV/DIAG lines above.")
     asof = navs.date.max()
     log(f"As-of date: {asof.date()}  | schemes with NAVs: {navs.amfi_code.nunique():,}")
 

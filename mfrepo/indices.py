@@ -30,7 +30,10 @@ def _fetch_year(s, name, start, end):
         name, start.strftime("%d-%b-%Y"), end.strftime("%d-%b-%Y"), name)
     r = s.post(URL, data=json.dumps({"cinfo": cinfo}), timeout=90)
     r.raise_for_status()
-    rows = json.loads(r.json()["d"])
+    try:
+        rows = json.loads(r.json()["d"])
+    except Exception:
+        raise RuntimeError(f"NSE sent non-JSON (HTTP {r.status_code}, {len(r.text)} chars): {r.text[:200]!r}")
     if not rows:
         return pd.DataFrame(columns=["date", "tri"])
     df = pd.DataFrame(rows)
