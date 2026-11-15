@@ -13,6 +13,7 @@ SCHEMES = [  # code, name, category, drift
     (101, "Alpha Large Cap Fund - Direct Plan - Growth", "Equity Scheme - Large Cap Fund", 0.14),
     (102, "Beta Large Cap Fund - Regular Plan - Growth", "Equity Scheme - Large Cap Fund", 0.10),
     (103, "Gamma Large Cap Fund - Regular Plan - IDCW", "Equity Scheme - Large Cap Fund", 0.10),
+    (104, "Alpha Large Cap Fund - Regular Plan - IDCW", "Equity Scheme - Large Cap Fund", 0.13),
     (200, "Alpha Small Cap Fund - Regular Plan - Growth", "Equity Scheme - Small Cap Fund", 0.18),
     (201, "Beta Small Cap Fund - Regular Plan - Growth", "Equity Scheme - Small Cap Fund", 0.15),
     (300, "Alpha Nifty 50 Index Fund - Regular Plan - Growth", "Other Scheme - Index Funds", 0.12),
@@ -71,10 +72,14 @@ def run():
     indices.time.sleep = lambda *_: None
     build.main()
     fm = pd.read_csv(C.OUT / "fund_metrics.csv")
-    assert set(fm.amfi_code) == {100, 101, 102, 200, 201, 300}, fm.amfi_code.tolist()   # IDCW excluded
+    assert set(fm.amfi_code) == {100, 101, 102, 103, 104, 200, 201, 300}, fm.amfi_code.tolist()  # all options kept
+    a, b = fm.set_index("amfi_code").loc[100], fm.set_index("amfi_code").loc[104]
+    assert a.ret_3y == b.ret_3y and b.metrics_basis.startswith("Growth option 100"), b.metrics_basis  # IDCW -> Growth sibling
+    assert "payouts not added back" in fm.set_index("amfi_code").loc[103, "metrics_basis"]  # no sibling -> own NAV
+    fm = fm[fm.option == "Growth"]
     lc = fm[fm.peer_group == "Equity Scheme - Large Cap Fund | Regular"]
     assert len(lc) == 2 and lc.rank_3y.isna().all()          # Regular-only peers; <MIN_PEERS so no rank
-    C.MIN_PEERS = 1; build.main(); fm = pd.read_csv(C.OUT / "fund_metrics.csv")
+    C.MIN_PEERS = 1; build.main(); fm = pd.read_csv(C.OUT / "fund_metrics.csv"); fm = fm[fm.option == "Growth"]
     lc = fm[fm.peer_group == "Equity Scheme - Large Cap Fund | Regular"]
     assert sorted(lc.quartile_3y) == [1, 3], lc.quartile_3y.tolist()
     assert fm.loc[fm.amfi_code == 300, "peer_group"].iloc[0].startswith("Other Scheme - Index Funds | NIFTY 50")
