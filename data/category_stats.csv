@@ -1,6 +1,375 @@
 peer_group,cat_avg_ret_ytd,cat_avg_ret_1y,cat_avg_ret_3y,cat_avg_ret_5y,cat_avg_roll3y_avg,cat_avg_sd_3y,cat_avg_sharpe_3y,cat_avg_beta_3y,cat_avg_alpha_3y,cat_avg_up_capture,cat_avg_down_capture,cat_avg_capture_ratio,schemes,as_of
-Equity Scheme - Mid Cap Fund | Regular,3.0098,2.0204,13.2778,13.2384,21.1526,18.6016,0.2905,,,,,,7,2026-11-14
-Equity Scheme - Multi Cap Fund | Regular,-2.4628,-2.7549,7.9407,,,16.0953,-0.0004,,,,,,4,2026-11-14
-Other Scheme - Other  ETFs | BSE LIQUID RATE | Regular,4.3259,4.9985,,,,,,,,,,,1,2026-11-14
-Other Scheme - Other  ETFs | NIFTY 1D RATE LIQUID | Regular,4.268,4.9288,,,,,,,,,,,5,2026-11-14
-Other Scheme - Other  ETFs | NIFTY GROWTH SECTORS 15 | Regular,-5.6655,-3.119,7.3567,,,17.2846,-0.0301,,,,,,1,2026-11-14
+Debt Scheme - Banking and PSU Fund | Direct,,,,,,,,,,,,,4,2026-11-15
+Debt Scheme - Banking and PSU Fund | Regular,,,,,,,,,,,,,4,2026-11-15
+Debt Scheme - Corporate Bond Fund | Direct,,,,,,,,,,,,,12,2026-11-15
+Debt Scheme - Corporate Bond Fund | Regular,,,,,,,,,,,,,12,2026-11-15
+Debt Scheme - Credit Risk Fund | Direct,,,,,,,,,,,,,8,2026-11-15
+Debt Scheme - Credit Risk Fund | Regular,,,,,,,,,,,,,9,2026-11-15
+Debt Scheme - Dynamic Bond | Direct,,,,,,,,,,,,,1,2026-11-15
+Debt Scheme - Dynamic Bond | Regular,,,,,,,,,,,,,1,2026-11-15
+Debt Scheme - Gilt Fund | Direct,,,,,,,,,,,,,13,2026-11-15
+Debt Scheme - Gilt Fund | Regular,,,,,,,,,,,,,17,2026-11-15
+Debt Scheme - Liquid Fund | Direct,,,,,,,,,,,,,22,2026-11-15
+Debt Scheme - Liquid Fund | Regular,,,,,,,,,,,,,35,2026-11-15
+Debt Scheme - Medium Duration Fund | Direct,,,,,,,,,,,,,1,2026-11-15
+Debt Scheme - Medium Duration Fund | Regular,,,,,,,,,,,,,1,2026-11-15
+Debt Scheme - Money Market Fund | Direct,,,,,,,,,,,,,14,2026-11-15
+Debt Scheme - Money Market Fund | Regular,,,,,,,,,,,,,16,2026-11-15
+Debt Scheme - Overnight Fund | Direct,,,,,,,,,,,,,26,2026-11-15
+Debt Scheme - Overnight Fund | Regular,,,,,,,,,,,,,22,2026-11-15
+Debt Scheme - Short Duration Fund | Direct,,,,,,,,,,,,,3,2026-11-15
+Debt Scheme - Short Duration Fund | Regular,,,,,,,,,,,,,3,2026-11-15
+Debt Scheme - Ultra Short Duration Fund | Direct,,,,,,,,,,,,,4,2026-11-15
+Debt Scheme - Ultra Short Duration Fund | Regular,,,,,,,,,,,,,4,2026-11-15
+Equity Scheme - Contra Fund | Direct,,,,,,,,,,,,,2,2026-11-15
+Equity Scheme - Contra Fund | Regular,,,,,,,,,,,,,3,2026-11-15
+Equity Scheme - ELSS | Direct,,,,,,,,,,,,,17,2026-11-15
+Equity Scheme - ELSS | Regular,,,,,,,,,,,,,16,2026-11-15
+Equity Scheme - Flexi Cap Fund | Direct,,,,,,,,,,,,,30,2026-11-15
+Equity Scheme - Flexi Cap Fund | Regular,,,,,,,,,,,,,30,2026-11-15
+Equity Scheme - Focused Fund | Direct,,,,,,,,,,,,,18,2026-11-15
+Equity Scheme - Focused Fund | Regular,,,,,,,,,,,,,18,2026-11-15
+Equity Scheme - Large & Mid Cap Fund | Direct,,,,,,,,,,,,,22,2026-11-15
+Equity Scheme - Large & Mid Cap Fund | Regular,,,,,,,,,,,,,23,2026-11-15
+Equity Scheme - Large Cap Fund | Direct,,,,,,,,,,,,,23,2026-11-15
+Equity Scheme - Large Cap Fund | Regular,,,,,,,,,,,,,27,2026-11-15
+Equity Scheme - Mid Cap Fund | Direct,6.4378,5.4708,16.7381,16.6088,24.6959,17.9269,0.4948,,,,,,19,2026-11-15
+Equity Scheme - Mid Cap Fund | Regular,5.7372,4.6688,15.8107,15.6874,23.701,17.9203,0.4446,,,,,,21,2026-11-15
+Equity Scheme - Multi Cap Fund | Direct,1.4873,1.2521,12.8292,,,16.2743,0.3166,,,,,,17,2026-11-15
+Equity Scheme - Multi Cap Fund | Regular,0.5588,0.189,11.6292,,,16.267,0.2447,,,,,,19,2026-11-15
+Equity Scheme - Sectoral/ Thematic | Direct,,,,,,,,,,,,,172,2026-11-15
+Equity Scheme - Sectoral/ Thematic | Regular,,,,,,,,,,,,,178,2026-11-15
+Equity Scheme - Small Cap Fund | Direct,,,,,,,,,,,,,25,2026-11-15
+Equity Scheme - Small Cap Fund | Regular,,,,,,,,,,,,,24,2026-11-15
+Equity Scheme - Value Fund | Direct,,,,,,,,,,,,,14,2026-11-15
+Equity Scheme - Value Fund | Regular,,,,,,,,,,,,,16,2026-11-15
+Hybrid Scheme - Aggressive Hybrid Fund | Direct,,,,,,,,,,,,,14,2026-11-15
+Hybrid Scheme - Aggressive Hybrid Fund | Regular,,,,,,,,,,,,,14,2026-11-15
+Hybrid Scheme - Arbitrage Fund | Direct,,,,,,,,,,,,,22,2026-11-15
+Hybrid Scheme - Arbitrage Fund | Regular,,,,,,,,,,,,,25,2026-11-15
+Hybrid Scheme - Balanced Hybrid Fund | Direct,,,,,,,,,,,,,1,2026-11-15
+Hybrid Scheme - Balanced Hybrid Fund | Regular,,,,,,,,,,,,,1,2026-11-15
+Hybrid Scheme - Conservative Hybrid Fund | Direct,,,,,,,,,,,,,7,2026-11-15
+Hybrid Scheme - Conservative Hybrid Fund | Regular,,,,,,,,,,,,,7,2026-11-15
+Hybrid Scheme - Dynamic Asset Allocation or Balanced Advantage | Direct,,,,,,,,,,,,,22,2026-11-15
+Hybrid Scheme - Dynamic Asset Allocation or Balanced Advantage | Regular,,,,,,,,,,,,,22,2026-11-15
+Hybrid Scheme - Equity Savings | Direct,,,,,,,,,,,,,16,2026-11-15
+Hybrid Scheme - Equity Savings | Regular,,,,,,,,,,,,,17,2026-11-15
+Hybrid Scheme - Multi Asset Allocation | Direct,,,,,,,,,,,,,19,2026-11-15
+Hybrid Scheme - Multi Asset Allocation | Regular,,,,,,,,,,,,,19,2026-11-15
+Other Scheme - FoF Domestic | Direct,,,,,,,,,,,,,87,2026-11-15
+Other Scheme - FoF Domestic | Regular,,,,,,,,,,,,,93,2026-11-15
+Other Scheme - FoF Overseas | Direct,,,,,,,,,,,,,30,2026-11-15
+Other Scheme - FoF Overseas | Regular,,,,,,,,,,,,,36,2026-11-15
+Other Scheme - Gold ETF | OTHER INDEX | Direct,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Gold ETF | OTHER INDEX | Regular,,,,,,,,,,,,,11,2026-11-15
+Other Scheme - Index Funds | BSE 1000 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE 1000 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE 500 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE 500 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE CLEAN ENVIRONMENT | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE CLEAN ENVIRONMENT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE ENHANCED VALUE | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | BSE FINANCIALS EX BANK 30 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | BSE HEALTHCARE | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE HEALTHCARE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE HOUSING | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE HOUSING | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE INDIA SECTOR LEADERS | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | BSE INDIA SECTOR LEADERS | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | BSE INTERNET ECONOMY | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE INTERNET ECONOMY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE LOW VOLATILITY | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | BSE MIDCAP 150 MOMENTUM 30 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | BSE PSU BANK | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE PSU BANK | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE PSU | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE PSU | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE QUALITY | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE QUALITY | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | BSE SELECT BUSINESS GROUPS | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE SELECT BUSINESS GROUPS | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | BSE SENSEX NEXT 30 | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | BSE SENSEX NEXT 30 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | BSE SENSEX | Direct,,,,,,,,,,,,,7,2026-11-15
+Other Scheme - Index Funds | BSE SENSEX | Regular,,,,,,,,,,,,,7,2026-11-15
+Other Scheme - Index Funds | MSCI INDIA DOMESTIC & WORLD HEALTHCARE 45 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | MSCI INDIA DOMESTIC & WORLD HEALTHCARE 45 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NASDAQ 100 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NASDAQ 100 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 100 EQUAL WEIGHT | Direct,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY 100 EQUAL WEIGHT | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY 100 LOW VOLATILITY 30 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 100 LOW VOLATILITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 100 QUALITY 30 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 100 QUALITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 100 | Direct,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY 100 | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY 200 MOMENTUM 30 | Direct,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY 200 MOMENTUM 30 | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY 200 QUALITY 30 | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY 200 QUALITY 30 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY 50 EQUAL WEIGHT | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY 50 EQUAL WEIGHT | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY 50 VALUE 20 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 50 VALUE 20 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 50 | Direct,,,,,,,,,,,,,17,2026-11-15
+Other Scheme - Index Funds | NIFTY 50 | Regular,,,,,,,,,,,,,17,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 EQUAL WEIGHT | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 EQUAL WEIGHT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 LOW VOLATILITY 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 LOW VOLATILITY 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 MOMENTUM 50 | Direct,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 MOMENTUM 50 | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 QUALITY 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 QUALITY 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 VALUE 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 VALUE 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 | Direct,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Index Funds | NIFTY 500 | Regular,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Index Funds | NIFTY AAA BOND FINANCIAL SERVICES MAR 2028 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY AAA BOND FINANCIAL SERVICES MAR 2028 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY ALPHA 50 | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY ALPHA 50 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY ALPHA LOW VOLATILITY 30 | Direct,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Index Funds | NIFTY ALPHA LOW VOLATILITY 30 | Regular,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Index Funds | NIFTY AUTO | Direct,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY AUTO | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY BANK | Direct,,,,,,,,,,,,,7,2026-11-15
+Other Scheme - Index Funds | NIFTY BANK | Regular,,,,,,,,,,,,,7,2026-11-15
+Other Scheme - Index Funds | NIFTY CAPITAL MARKET | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY CAPITAL MARKET | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY CAPITAL MARKETS | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY CAPITAL MARKETS | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY COMMODITIES | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY COMMODITIES | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY FINANCIAL SERVICES EX-BANK | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY FINANCIAL SERVICES EX-BANK | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY FINANCIAL SERVICES | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY FINANCIAL SERVICES | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC APR 2029 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC APR 2029 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC DEC 2026 | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC DEC 2026 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC DEC 2029 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC DEC 2029 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC DEC 2030 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC DEC 2030 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JUL 2031 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JUL 2031 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JULY 2031 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JULY 2031 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JULY 2033 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JULY 2033 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JUN 2027 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JUN 2027 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JUN 2036 MATURITY | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JUN 2036 MATURITY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JUN 2036 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC JUN 2036 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC OCT 2028 MATURITY | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC OCT 2028 MATURITY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC SEP 2027 MATURITY | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC SEP 2027 MATURITY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC SEP 2032 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY G-SEC SEP 2032 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY HEALTHCARE | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY HEALTHCARE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA CONSUMPTION | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA CONSUMPTION | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA DEFENCE | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA DEFENCE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA DIGITAL | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA DIGITAL | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA MANUFACTURING | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA MANUFACTURING | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA TOURISM | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY INDIA TOURISM | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY IT | Direct,,,,,,,,,,,,,5,2026-11-15
+Other Scheme - Index Funds | NIFTY IT | Regular,,,,,,,,,,,,,5,2026-11-15
+Other Scheme - Index Funds | NIFTY LARGE MIDCAP 250 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY LARGE MIDCAP 250 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY LARGEMIDCAP 250 | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY LARGEMIDCAP 250 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY MICROCAP 250 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MICROCAP 250 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP 150 MOMENTUM 50 | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP 150 MOMENTUM 50 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP 150 QUALITY 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP 150 QUALITY 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP 150 | Direct,,,,,,,,,,,,,10,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP 150 | Regular,,,,,,,,,,,,,12,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP150 MOMENTUM 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDCAP150 MOMENTUM 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALL FINANCIAL SERVICES | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALL FINANCIAL SERVICES | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALL HEALTHCARE | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALL HEALTHCARE | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALL INDIA CONSUMPTION | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALL INDIA CONSUMPTION | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALL IT AND TELECOM | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALLCAP 400 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY MIDSMALLCAP 400 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY NEXT 50 | Direct,,,,,,,,,,,,,12,2026-11-15
+Other Scheme - Index Funds | NIFTY NEXT 50 | Regular,,,,,,,,,,,,,12,2026-11-15
+Other Scheme - Index Funds | NIFTY PHARMA | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY PHARMA | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY PRIVATE BANK | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY PRIVATE BANK | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY REALTY | Direct,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY REALTY | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL APR 2027 TOP 12 EQUAL WEIGHT | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL APR 2027 TOP 12 EQUAL WEIGHT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL APR 2027 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL APR 2027 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL APR 2032 TOP 12 EQUAL WEIGHT | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL APR 2032 TOP 12 EQUAL WEIGHT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL DEC 2028 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL DEC 2028 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL JUL 2033 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL JUL 2033 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL PLUS AAA PSU BOND DEC 2027 60 40 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL PLUS AAA PSU BOND DEC 2027 60 40 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL PLUS AAA PSU BOND JUL 2028 60 - 40 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL PLUS AAA PSU BOND JUL 2028 60 - 40 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL SEP 2027 | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY SDL SEP 2027 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY SMALLCAP 250 | Direct,,,,,,,,,,,,,9,2026-11-15
+Other Scheme - Index Funds | NIFTY SMALLCAP 250 | Regular,,,,,,,,,,,,,9,2026-11-15
+Other Scheme - Index Funds | NIFTY SMALLCAP 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SMALLCAP 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SMALLCAP250 MOMENTUM QUALITY 100 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SMALLCAP250 MOMENTUM QUALITY 100 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SMALLCAP250 QUALITY 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY SMALLCAP250 QUALITY 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY TOP 10 EQUAL WEIGHT | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY TOP 10 EQUAL WEIGHT | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY TOP 15 EQUAL WEIGHT | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY TOP 15 EQUAL WEIGHT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY TOP 20 EQUAL WEIGHT | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY TOP 20 EQUAL WEIGHT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY TOTAL MARKET MOMENTUM QUALITY 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY TOTAL MARKET MOMENTUM QUALITY 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY TOTAL MARKET | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY TOTAL MARKET | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY100 LOW VOLATILITY 30 | Direct,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY100 LOW VOLATILITY 30 | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY100 QUALITY 30 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY100 QUALITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY200 ALPHA 30 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY200 ALPHA 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY200 MOMENTUM 30 | Direct,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Index Funds | NIFTY200 MOMENTUM 30 | Regular,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Index Funds | NIFTY200 QUALITY 30 | Direct,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY200 QUALITY 30 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Index Funds | NIFTY200 VALUE 30 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY200 VALUE 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY50 EQUAL WEIGHT | Direct,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY50 EQUAL WEIGHT | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Index Funds | NIFTY50 VALUE 20 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY50 VALUE 20 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY500 FLEXICAP QUALITY 30 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY500 FLEXICAP QUALITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY500 MOMENTUM 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY500 MOMENTUM 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY500 MULTICAP MOMENTUM QUALITY 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTY500 MULTICAP MOMENTUM QUALITY 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTYIT | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | NIFTYIT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | OTHER INDEX | Direct,,,,,,,,,,,,,59,2026-11-15
+Other Scheme - Index Funds | OTHER INDEX | Regular,,,,,,,,,,,,,59,2026-11-15
+Other Scheme - Index Funds | S&P 500 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Index Funds | S&P 500 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE 500 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | BSE CAPITAL MARKETS & INSURANCE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE ENHANCED VALUE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE HEALTHCARE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE INDIA INFRASTRUCTURE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE LIQUID RATE | Regular,4.3559,5.0287,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | BSE LOW VOLATILITY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE MIDCAP SELECT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE QUALITY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE SELECT IPO | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE SENSEX NEXT 30 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE SENSEX NEXT 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | BSE SENSEX | Regular,,,,,,,,,,,,,7,2026-11-15
+Other Scheme - Other  ETFs | BSE TOP 10 BANKS | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | MSCI INDIA | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NASDAQ 100 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NASDAQ Q50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 10 YR BENCHMARK G-SEC | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 100 EQUAL WEIGHT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 100 LOW VOLATILITY 30 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 100 | Regular,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 1D RATE LIQUID | Direct,4.2386,4.893,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 1D RATE LIQUID | Regular,4.3334,4.9988,,,,,,,,,,,5,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 200 MOMENTUM 30 | Regular,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 200 QUALITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 5 YEAR BENCHMARK G-SEC | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 5 YR BENCHMARK G-SEC | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 50 EQUAL WEIGHT | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 50 EXCHANGE TRADED | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 50 VALUE 20 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 50 | Regular,,,,,,,,,,,,,10,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 500 MOMENTUM 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 500 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY 8-13 YR G-SEC | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY ALPHA 50 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY ALPHA LOW- VOLATILITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY AUTO | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY AUTO | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY BANK | Regular,,,,,,,,,,,,,7,2026-11-15
+Other Scheme - Other  ETFs | NIFTY CAPITAL MARKET | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY CHEMICALS | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY COMMODITIES | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY ENERGY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY EV & NEW AGE AUTOMOTIVE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY FINANCIAL SERVICES EX-BANK | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY FMCG | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY GROWTH SECTORS 15 | Regular,-5.6655,-3.119,6.8437,,,17.2846,-0.0301,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY HEALTHCARE | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY INDIA CONSUMPTION | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY INDIA DEFENCE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY INDIA DIGITAL EXCHANGE TRADED | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY INDIA MANUFACTURING | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY INDIA MANUFACTURING | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY INDIA TOURISM | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY INFRASTRUCTURE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY IT | Regular,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Other  ETFs | NIFTY LARGEMIDCAP 250 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY METAL | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY MIDCAP 100 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY MIDCAP 150 MOMENTUM 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY MIDCAP 150 QUALITY 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY MIDCAP 150 | Regular,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Other  ETFs | NIFTY MIDCAP 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY MNC | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY NEXT 50 | Regular,,,,,,,,,,,,,6,2026-11-15
+Other Scheme - Other  ETFs | NIFTY OIL & GAS | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY PHARMA | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY PRIVATE BANK EXCHANGE TRADED | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY PRIVATE BANK | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Other  ETFs | NIFTY PSE | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY PSU BANK | Regular,,,,,,,,,,,,,3,2026-11-15
+Other Scheme - Other  ETFs | NIFTY REALTY | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY SERVICES SECTOR | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY SMALLCAP 250 | Regular,,,,,,,,,,,,,4,2026-11-15
+Other Scheme - Other  ETFs | NIFTY TOP 10 EQUAL WEIGHT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY TOP 15 EQUAL WEIGHT | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY TOTAL MARKET MOMENTUM QUALITY 50 | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY TOTAL MARKET | Direct,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY100 LOW VOLATILITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY100 QUALITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY200 MOMENTUM 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY200 QUALITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY200 VALUE 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY50 VALUE 20 | Regular,,,,,,,,,,,,,2,2026-11-15
+Other Scheme - Other  ETFs | NIFTY500 FLEXICAP QUALITY 30 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | NIFTY500 MULTICAP MOMENTUM QUALITY 50 | Regular,,,,,,,,,,,,,1,2026-11-15
+Other Scheme - Other  ETFs | OTHER INDEX | Direct,,,,,,,,,,,,,20,2026-11-15
+Other Scheme - Other  ETFs | OTHER INDEX | Regular,,,,,,,,,,,,,15,2026-11-15

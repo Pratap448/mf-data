@@ -1,8 +1,8 @@
 {
- "as_of": "2026-11-14",
- "run_at": "2026-11-14T12:32:49",
- "schemes_in_master": 18,
- "schemes_with_metrics": 18,
+ "as_of": "2026-11-15",
+ "run_at": "2026-11-15T08:17:13",
+ "schemes_in_master": 2345,
+ "schemes_with_metrics": 2168,
  "benchmarks_loaded": [],
  "rf_rate": 0.065,
  "method": {
