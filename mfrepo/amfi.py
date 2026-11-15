@@ -29,9 +29,9 @@ def _get(url, tries=4):
 def _plan_option(name):
     n = name.lower()
     plan = "Direct" if "direct" in n else "Regular"
-    if any(k in n for k in ("idcw", "dividend", "payout", "reinvest", "bonus")):
+    if any(k in n for k in ("idcw", "dividend", "payout", "reinvest", "bonus", "income distribution")):
         opt = "IDCW/Other"
-    elif "growth" in n or "gr " in n or n.endswith(" gr"):
+    elif "growth" in n or "gr " in n or n.endswith(" gr") or "cumulative" in n:
         opt = "Growth"
     else:
         opt = "Unknown"
@@ -39,8 +39,10 @@ def _plan_option(name):
 
 
 def parse_navall(text):
-    """NAVAll.txt -> one row per scheme with SEBI category taken from the section headers."""
+    """NAVAll.txt -> one row per scheme with SEBI category taken from the section headers.
+    Columns are located from the 'Scheme Code;...' header, so added/reordered columns are handled."""
     rows, cat, kind, amc = [], None, None, None
+    col = dict(code=0, isin_g=1, isin_r=2, name=3, nav=4, date=-1, plan=None, option=None)
     for line in text.splitlines():
         s = line.strip()
         if not s:
@@ -50,18 +52,48 @@ def parse_navall(text):
             kind, cat = _kind(m.group(1)), m.group(2).strip()
             continue
         parts = [p.strip() for p in s.split(";")]
+        low = [p.lower() for p in parts]
+        if low[0].startswith("scheme code"):
+            for j, h in enumerate(low):
+                if "growth" in h and "isin" in h: col["isin_g"] = j
+                elif "reinvest" in h and "isin" in h: col["isin_r"] = j
+                elif h.startswith("scheme name"): col["name"] = j
+                elif "net asset value" in h or h == "nav": col["nav"] = j
+                elif h == "date" or h.endswith(" date"): col["date"] = j
+                elif "plan" in h and "isin" not in h: col["plan"] = j
+                elif "option" in h and "isin" not in h: col["option"] = j
+            continue
         if len(parts) >= 6 and parts[0].isdigit():
-            code, isin_g, isin_r, name, nav, date = parts[0], parts[1], parts[2], parts[3], parts[4], parts[-1]
-            plan, opt = _plan_option(name)
-            rows.append(dict(amfi_code=int(code), isin_growth=isin_g if isin_g not in ("-", "") else None,
+            g = lambda k: parts[col[k]] if col[k] is not None and col[k] < len(parts) else ""
+            name = g("name")
+            label = " ".join(x for x in (name, g("plan"), g("option")) if x)
+            plan, opt = _plan_option(label)
+            isin_g, isin_r = g("isin_g"), g("isin_r")
+            rows.append(dict(amfi_code=int(parts[0]), isin_growth=isin_g if isin_g not in ("-", "") else None,
                              isin_reinv=isin_r if isin_r not in ("-", "") else None, scheme_name=name,
                              amc=amc, scheme_type=kind, sebi_category=cat,
                              category_group=cat.split(" - ")[0].strip() if cat else None,
-                             plan=plan, option=opt, latest_nav=pd.to_numeric(nav, errors="coerce"),
-                             nav_date=pd.to_datetime(date, format="%d-%b-%Y", errors="coerce")))
-        elif len(parts) == 1 and not s.lower().startswith("scheme code"):
+                             plan=plan, option=opt,
+                             latest_nav=pd.to_numeric(g("nav").replace(",", ""), errors="coerce"),
+                             nav_date=pd.to_datetime(g("date"), format="%d-%b-%Y", errors="coerce")))
+        elif len(parts) == 1 and not low[0].startswith("scheme code"):
             amc = s  # AMC name lines sit between category header and schemes
     return pd.DataFrame(rows)
+
+
+MFAPI_LIST = "https://api.mfapi.in/mf"
+
+
+def _full_names():
+    """Full scheme names (with plan/option) from mfapi.in's scheme list, keyed by AMFI code.
+    AMFI's NAVAll.txt now shows only the base fund name, so plan/option is read from these."""
+    try:
+        r = requests.get(MFAPI_LIST, headers=C.HTTP_HEADERS, timeout=120)
+        r.raise_for_status()
+        return {int(x["schemeCode"]): x["schemeName"].strip() for x in r.json() if str(x.get("schemeCode", "")).isdigit()}
+    except Exception as e:
+        print(f"  WARNING: mfapi.in scheme list unavailable ({e}); plan/option from AMFI names only")
+        return {}
 
 
 def _looks_like_navall(text):
@@ -89,7 +121,24 @@ def scheme_master():
     if df.empty:
         raise RuntimeError("NAVAll.txt downloaded but no scheme rows parsed. First 500 chars:\n"
                            + repr(text[:500]))
+    head = [l for l in text.splitlines() if l.strip()][:1]
+    sample = next((l for l in text.splitlines() if l.split(";")[0].strip().isdigit()), "")
+    print(f"  NAVAll header: {head[0][:250] if head else ''!r}")
+    print(f"  NAVAll sample: {sample[:250]!r}")
+    full = _full_names()
+    if full:
+        df["amfi_name"] = df["scheme_name"]
+        df["scheme_name"] = [full.get(c, n) for c, n in zip(df.amfi_code, df.scheme_name)]
+        po = [_plan_option(n) for n in df.scheme_name]
+        df["plan"], df["option"] = [p for p, _ in po], [o for _, o in po]
+    # When the name is silent: payout+reinvest ISIN pair => IDCW; single ISIN => Growth (flagged)
+    df["option_source"] = "name"
+    unk = (df.option == "Unknown")
+    df.loc[unk & df.isin_reinv.notna(), ["option", "option_source"]] = ["IDCW/Other", "isin"]
+    unk = (df.option == "Unknown")
+    df.loc[unk & df.isin_growth.notna(), ["option", "option_source"]] = ["Growth", "isin"]
     print(f"  AMFI master: {len(df):,} rows; scheme types: {df.scheme_type.value_counts(dropna=False).to_dict()}")
+    print(f"  plan: {df.plan.value_counts().to_dict()} | option: {df.option.value_counts().to_dict()}")
     keep = df[(df.scheme_type == "Open Ended") & df.category_group.isin(C.KEEP_GROUPS)]
     if keep.empty:
         raise RuntimeError("No open-ended schemes in kept groups. Category groups seen: "
