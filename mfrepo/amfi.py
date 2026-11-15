@@ -27,7 +27,7 @@ def _get(url, tries=4):
 
 
 def _plan_option(name):
-    n = name.lower()
+    n = " ".join(name.lower().split()).replace("dividend yield", "divyield")
     plan = "Direct" if "direct" in n else "Regular"
     if any(k in n for k in ("idcw", "dividend", "payout", "reinvest", "bonus", "income distribution")):
         opt = "IDCW/Other"
@@ -139,7 +139,12 @@ def scheme_master():
     df.loc[unk & df.isin_growth.notna(), ["option", "option_source"]] = ["Growth", "isin"]
     print(f"  AMFI master: {len(df):,} rows; scheme types: {df.scheme_type.value_counts(dropna=False).to_dict()}")
     print(f"  plan: {df.plan.value_counts().to_dict()} | option: {df.option.value_counts().to_dict()}")
-    keep = df[(df.scheme_type == "Open Ended") & df.category_group.isin(C.KEEP_GROUPS)]
+    mask = pd.Series(True, index=df.index)
+    if getattr(C, "KEEP_TYPES", None):
+        mask &= df.scheme_type.isin(C.KEEP_TYPES)
+    if C.KEEP_GROUPS:
+        mask &= df.category_group.isin(C.KEEP_GROUPS)
+    keep = df[mask]
     if keep.empty:
         raise RuntimeError("No open-ended schemes in kept groups. Category groups seen: "
                            + str(df.category_group.value_counts().head(15).to_dict()))

@@ -4,7 +4,7 @@ Run:  python -m mfrepo.build            (full refresh / incremental if cache exi
       python -m mfrepo.build --offline  (recompute metrics from cache only)
 """
 import sys, json, re, datetime as dt
-import pandas as pd
+import numpy as np, pandas as pd
 from . import config as C, amfi, indices, metrics as M
 
 METRIC_COLS = ["ret_ytd", "ret_1y", "ret_3y", "ret_5y", "roll3y_avg", "sd_3y", "sharpe_3y", "beta_3y",
@@ -40,9 +40,37 @@ def bench_map(master):
     return master.apply(pick, axis=1)
 
 
+OPT_WORDS = re.compile(r"\s*[-–(]?\s*\b(direct|regular)\b.*$|\s*[-–]\s*(growth|idcw|dividend|bonus).*$", re.I)
+
+
+def base_name(row):
+    n = getattr(row, "amfi_name", None)
+    if isinstance(n, str) and n.strip():
+        return " ".join(n.lower().split())
+    return " ".join(OPT_WORDS.sub("", str(row.scheme_name)).lower().split())
+
+
+def sibling_map(master):
+    """IDCW/Bonus/Unknown option -> Growth option of the same fund, same plan (same AMC, base name, category)."""
+    m = master.copy()
+    m["base_key"] = [base_name(r) for r in m.itertuples()]
+    key = ["amc", "base_key", "sebi_category", "plan"]
+    growth = m[m.option == "Growth"].drop_duplicates(key).set_index(key).amfi_code
+    other = m[m.option != "Growth"]
+    out = {}
+    for r in other.itertuples():
+        k = (r.amc, r.base_key, r.sebi_category, r.plan)
+        if k in growth.index:
+            out[r.amfi_code] = int(growth.loc[k])
+    return out
+
+
 def peer_key(row):
-    """Peer group for ranking: SEBI category + plan; index funds/ETFs grouped by the index they track."""
+    """Peer group for ranking: SEBI category + plan; index funds/ETFs grouped by the index they track.
+    Close-ended / interval schemes are kept in their own groups."""
     cat = row.sebi_category or ""
+    if getattr(row, "scheme_type", "Open Ended") not in ("Open Ended", None) and isinstance(row.scheme_type, str):
+        cat = f"{row.scheme_type} | {cat}"
     if re.search(r"index fund|etf", cat, re.I):
         m = re.search(r"((nifty|sensex|bse|s&p|nasdaq|msci)[\w\s&\-]*?)(?=\s+(index|etf|fund|fof)\b)",
                       row.scheme_name, re.I)
@@ -52,17 +80,13 @@ def peer_key(row):
 
 
 def refresh_navs(master, today):
+    """Full history for every kept scheme on each run. mfapi.in is one request per scheme
+    whatever the date range, so a partial refresh saves nothing and risks gaps."""
     keep = set(master.amfi_code)
-    cache = load_cache("navs")
-    start = (today - pd.DateOffset(years=C.HISTORY_YEARS) - pd.Timedelta(days=30)).date()
-    if cache is not None and len(cache):
-        start = (cache.date.max() - pd.Timedelta(days=10)).date()
-    log(f"NAV history from {start} to {today.date()}")
-    new = amfi.nav_history(start, today.date(), keep, log)
-    navs = pd.concat([cache, new], ignore_index=True) if cache is not None else new
-    navs = navs[navs.amfi_code.isin(keep)]
+    full_start = (today - pd.DateOffset(years=C.HISTORY_YEARS) - pd.Timedelta(days=30)).date()
+    log(f"NAV history (full, {len(keep):,} schemes) from {full_start} to {today.date()}")
+    navs = amfi.nav_history(full_start, today.date(), keep, log)
     navs = navs.drop_duplicates(["amfi_code", "date"], keep="last")
-    navs = navs[navs.date >= today - pd.DateOffset(years=C.HISTORY_YEARS) - pd.Timedelta(days=30)]
     save_cache(navs, "navs")
     return navs
 
@@ -96,7 +120,13 @@ def main(offline=False):
         master_all["benchmark_index"] = bench_map(master_all)
         master_all.to_csv(C.OUT / "scheme_master.csv", index=False)
         master = master_all
-    master = master[master.option == "Growth"].copy()
+    full_master = master.copy()
+    sib = sibling_map(full_master)
+    # NAVs needed: every Growth option + any other option with no Growth sibling
+    master = full_master[(full_master.option == "Growth") | (~full_master.amfi_code.isin(sib))].copy()
+    log(f"Schemes: {len(full_master):,} total | {int((full_master.option == 'Growth').sum()):,} Growth | "
+        f"{len(sib):,} IDCW/other mapped to Growth sibling | "
+        f"{int(((full_master.option != 'Growth') & ~full_master.amfi_code.isin(sib)).sum()):,} without sibling (own NAV)")
     if not offline:
         navs = refresh_navs(master, today)
         tri = refresh_tri(sorted(set(master.benchmark_index.dropna())), today)
@@ -133,15 +163,30 @@ def main(offline=False):
             fm[f"excess_{k}"] = fm[f"ret_{k}"] - fm[f"bm_ret_{k}"]
 
     fm["peer_group"] = fm.apply(peer_key, axis=1)
+    fm["metrics_basis"] = np.where(fm.option == "IDCW/Other",
+                                   "own NAV (IDCW option, no Growth sibling: payouts not added back)", "own NAV")
+    g = fm[fm.option == "Growth"]  # peers = Growth options only, so one fund isn't counted twice
     for col, tag in [("ret_3y", "3y"), ("roll3y_avg", "roll3y")]:
-        rk = fm.groupby("peer_group", group_keys=False)[col].apply(M.rank_quartile)
+        rk = g.groupby("peer_group", group_keys=False)[col].apply(M.rank_quartile)
         rk.columns = [f"{c}_{tag}" for c in rk.columns]
         fm = fm.join(rk)
 
-    cat = fm.groupby("peer_group")[METRIC_COLS].mean().add_prefix("cat_avg_")
-    cat["schemes"] = fm.groupby("peer_group").size()
+    cat = g.groupby("peer_group")[METRIC_COLS].mean().add_prefix("cat_avg_")
+    cat["schemes"] = g.groupby("peer_group").size()
     cat = cat.reset_index()
     fm = fm.merge(cat.drop(columns="schemes"), on="peer_group", how="left")
+    # IDCW / Bonus options: same fund & plan as a Growth option -> carry the Growth option's metrics
+    sib_rows = full_master[full_master.amfi_code.isin(sib)].copy()
+    if len(sib_rows):
+        gm = fm.set_index("amfi_code")
+        cols = [c for c in fm.columns if c not in full_master.columns]
+        src = sib_rows.amfi_code.map(sib)
+        ok = src.isin(gm.index)
+        add = sib_rows[ok].reset_index(drop=True)
+        vals = gm.loc[src[ok].values, cols].reset_index(drop=True)
+        add = pd.concat([add, vals], axis=1)
+        add["metrics_basis"] = "Growth option " + src[ok].astype(int).astype(str).values + " (same fund & plan)"
+        fm = pd.concat([fm, add], ignore_index=True)
     fm.insert(0, "as_of", asof.date())
 
     num = fm.select_dtypes("number").columns.difference(["amfi_code", "latest_nav", "rank_3y", "count_3y",
@@ -156,11 +201,11 @@ def main(offline=False):
     me[["amfi_code", "date", "nav"]].to_csv(C.OUT / "nav_month_end.csv.gz", index=False, compression="gzip")
 
     info = {"as_of": str(asof.date()), "run_at": dt.datetime.now().isoformat(timespec="seconds"),
-            "schemes_in_master": int(len(master)), "schemes_with_metrics": int(len(fm)),
+            "schemes_in_master": int(len(full_master)), "schemes_with_metrics": int(len(fm)),
             "benchmarks_loaded": sorted(tri_s), "rf_rate": C.RF_RATE,
             "method": {"returns": "point-to-point NAV, CAGR for >1Y", "rolling": f"avg daily {C.ROLL_WINDOW_YEARS}Y CAGR, windows inside last {C.ROLL_DATA_YEARS}Y, needs {C.ROLL_DATA_YEARS}Y record",
                        "risk": f"{C.RISK_MONTHS} monthly returns; Sharpe vs RF; Jensen alpha & beta vs mapped TRI; capture = geometric up/down-month",
-                       "peers": "SEBI category + plan (Regular/Direct), Growth option; index funds grouped by tracked index",
+                       "peers": "SEBI category + plan (Regular/Direct), ranked on Growth options; IDCW/Bonus options carry their Growth sibling's metrics; close-ended/interval in own groups; index funds grouped by tracked index",
                        "category_avg": "simple average of peers"}}
     (C.OUT / "run_info.json").write_text(json.dumps(info, indent=1))
     log(json.dumps(info, indent=1))

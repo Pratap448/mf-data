@@ -14,6 +14,7 @@ ROLL_DATA_YEARS = 5        # rolling windows must sit inside the last 5 years; f
 RISK_MONTHS = 36
 MIN_PEERS = 4             # rank/quartile shown only when the peer group has at least this many schemes           # months used for Std Dev / Sharpe / Beta / Alpha / Capture
 NAV_CHUNK_DAYS = 90        # AMFI NAV-history request size
-KEEP_GROUPS = ("Equity Scheme", "Hybrid Scheme", "Debt Scheme", "Other Scheme")
+KEEP_GROUPS = None  # None = keep every category group (Equity, Debt, Hybrid, Solution Oriented, Other, close-ended)
+KEEP_TYPES = None   # None = Open Ended, Close Ended and Interval Fund schemes
 HTTP_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                               "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
