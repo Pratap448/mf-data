@@ -65,6 +65,7 @@ def run():
     amfi._get = fake_get
     amfi.time.sleep = lambda *_: None
     amfi._mfapi_one = fake_mfapi
+    amfi._full_names = lambda: {}
     indices._fetch_year = fake_year
     indices._session = lambda: None
     indices.time.sleep = lambda *_: None
