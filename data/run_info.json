@@ -1,15 +1,15 @@
 {
  "as_of": "2026-11-15",
- "run_at": "2026-11-15T08:17:13",
- "schemes_in_master": 2345,
- "schemes_with_metrics": 2168,
+ "run_at": "2026-11-15T08:46:54",
+ "schemes_in_master": 14455,
+ "schemes_with_metrics": 9030,
  "benchmarks_loaded": [],
  "rf_rate": 0.065,
  "method": {
   "returns": "point-to-point NAV, CAGR for >1Y",
   "rolling": "avg daily 3Y CAGR, windows inside last 5Y, needs 5Y record",
   "risk": "36 monthly returns; Sharpe vs RF; Jensen alpha & beta vs mapped TRI; capture = geometric up/down-month",
-  "peers": "SEBI category + plan (Regular/Direct), Growth option; index funds grouped by tracked index",
+  "peers": "SEBI category + plan (Regular/Direct), ranked on Growth options; IDCW/Bonus options carry their Growth sibling's metrics; close-ended/interval in own groups; index funds grouped by tracked index",
   "category_avg": "simple average of peers"
  }
 }
