@@ -1,8 +1,8 @@
 peer_group,cat_avg_ret_ytd,cat_avg_ret_1y,cat_avg_ret_3y,cat_avg_ret_5y,cat_avg_roll3y_avg,cat_avg_sd_3y,cat_avg_sharpe_3y,cat_avg_beta_3y,cat_avg_alpha_3y,cat_avg_up_capture,cat_avg_down_capture,cat_avg_capture_ratio,schemes,as_of
 Children’s Fund - Childrens' Fund | Direct,2.6849,2.3802,10.2147,6.1798,10.3254,11.4811,0.2899,,,,,,2,2026-11-16
-Children’s Fund - Childrens' Fund | Regular,1.8786,1.4571,9.0611,4.9533,9.0066,11.4719,0.1917,,,,,,2,2026-11-16
+Children’s Fund - Childrens' Fund | Regular,1.8787,1.4572,9.0611,4.9533,9.0066,11.4718,0.1917,,,,,,1,2026-11-16
 Close Ended | ELSS | Direct,4.143,3.342,13.2423,11.4713,17.1942,17.83,0.3327,1.0337,1.5938,112.1358,104.8529,1.0795,5,2026-11-16
-Close Ended | ELSS | Regular,2.1991,1.107,9.1786,11.9489,17.1517,18.501,0.1066,0.9993,-1.8486,95.0715,105.6387,0.9041,33,2026-11-16
+Close Ended | ELSS | Regular,2.1053,1.0744,9.3075,11.9588,17.1792,18.3954,0.1152,0.9958,-1.7341,95.3212,105.3549,0.9092,34,2026-11-16
 Close Ended | Income | Direct,4.5138,5.1985,7.5277,6.4138,7.79,1.3516,0.9131,,,,,,19,2026-11-16
 Close Ended | Income | Regular,4.3868,5.0519,7.2824,6.228,7.6382,1.3398,0.6728,,,,,,29,2026-11-16
 Close Ended | Income/Debt Oriented Schemes - Fixed Term Plan | Direct,4.4858,5.4112,7.4813,,,1.0224,0.9218,,,,,,3,2026-11-16
@@ -11,16 +11,16 @@ Close Ended | Income/Debt Oriented Schemes - Other Debt Scheme | Direct,4.4617,5
 Close Ended | Income/Debt Oriented Schemes - Other Debt Scheme | Regular,4.4291,5.1094,6.0357,5.7425,6.3187,0.3115,-1.7719,,,,,,2,2026-11-16
 Debt Scheme - Banking and PSU Fund | Direct,4.0171,4.4938,7.0037,6.3396,7.3773,1.465,0.3457,,,,,,4,2026-11-16
 Debt Scheme - Banking and PSU Fund | Regular,3.6767,4.0983,6.5764,5.9003,6.9293,1.4626,0.0386,,,,,,4,2026-11-16
-Debt Scheme - Corporate Bond Fund | Direct,3.7967,4.1932,6.961,6.2436,7.3996,1.6542,0.2917,,,,,,12,2026-11-16
-Debt Scheme - Corporate Bond Fund | Regular,3.4806,3.8284,6.5881,5.8939,7.0481,1.6537,0.0618,,,,,,12,2026-11-16
+Debt Scheme - Corporate Bond Fund | Direct,3.7967,4.1932,6.961,6.2436,7.3996,1.6542,0.2917,0.6589,0.2521,90.8057,15.3844,7.648,12,2026-11-16
+Debt Scheme - Corporate Bond Fund | Regular,3.4806,3.8284,6.5881,5.8939,7.0481,1.6537,0.0618,0.659,-0.0947,87.1247,23.3631,5.2345,12,2026-11-16
 Debt Scheme - Credit Risk Fund | Direct,8.3094,9.0656,9.7534,11.0845,10.2145,2.4994,1.3446,,,,,,8,2026-11-16
 Debt Scheme - Credit Risk Fund | Regular,7.5084,8.1567,8.8616,9.946,9.2515,2.3354,0.9583,,,,,,9,2026-11-16
 Debt Scheme - Dynamic Bond | Direct,2.5776,2.6981,6.5743,6.1433,7.7082,3.2822,0.0472,,,,,,1,2026-11-16
 Debt Scheme - Dynamic Bond | Regular,2.1257,2.1784,6.0683,5.7691,7.3008,3.2841,-0.1051,,,,,,1,2026-11-16
 Debt Scheme - Gilt Fund | Direct,2.8364,3.5019,6.0491,5.7215,7.3649,4.0206,-0.108,1.083,-0.4289,98.4176,111.4271,0.946,13,2026-11-16
 Debt Scheme - Gilt Fund | Regular,2.2244,2.7018,5.118,4.7309,6.2628,3.9056,-0.3526,1.044,-1.3138,89.0465,115.1289,0.8269,17,2026-11-16
-Debt Scheme - Liquid Fund | Direct,5.6712,6.434,6.8523,6.3946,6.8646,0.2523,1.0153,,,,,,22,2026-11-16
-Debt Scheme - Liquid Fund | Regular,5.2199,5.9106,6.2536,1.5455,3.3641,0.237,0.3022,,,,,,35,2026-11-16
+Debt Scheme - Liquid Fund | Direct,5.6712,6.434,6.8523,6.3946,6.8646,0.2523,1.0153,0.7462,0.1361,101.58,,,22,2026-11-16
+Debt Scheme - Liquid Fund | Regular,5.2199,5.9106,6.2536,1.5455,3.3641,0.237,0.3022,0.6846,-0.4235,92.7034,,,35,2026-11-16
 Debt Scheme - Medium Duration Fund | Direct,4.898,5.5572,8.6341,7.3054,8.5437,1.9249,1.0767,,,,,,1,2026-11-16
 Debt Scheme - Medium Duration Fund | Regular,4.0257,4.5495,7.5978,6.2489,7.4892,1.9234,0.5457,,,,,,1,2026-11-16
 Debt Scheme - Money Market Fund | Direct,5.6917,6.4981,7.2325,6.7265,7.3006,0.5626,1.1322,,,,,,14,2026-11-16
@@ -29,8 +29,8 @@ Debt Scheme - Overnight Fund | Direct,4.3779,5.0316,5.7305,9.0331,8.6819,0.2356,
 Debt Scheme - Overnight Fund | Regular,4.4925,5.1599,5.8995,8.9443,8.5934,0.2444,-2.8283,,,,,,22,2026-11-16
 Debt Scheme - Short Duration Fund | Direct,4.176,4.6994,7.2883,6.7095,7.7567,1.457,0.5204,0.6298,0.5131,93.153,-13.2014,19.9371,3,2026-11-16
 Debt Scheme - Short Duration Fund | Regular,3.637,4.074,6.6437,6.0361,7.0834,1.456,0.0829,0.63,-0.0851,86.4788,2.3257,8.0378,3,2026-11-16
-Debt Scheme - Ultra Short Duration Fund | Direct,5.6627,6.4438,7.0705,6.5357,7.0574,0.4538,0.9574,,,,,,4,2026-11-16
-Debt Scheme - Ultra Short Duration Fund | Regular,5.1013,5.7971,6.4599,5.9381,6.4617,0.4506,-0.464,,,,,,4,2026-11-16
+Debt Scheme - Ultra Short Duration Fund | Direct,5.6627,6.4438,7.0705,6.5357,7.0574,0.4538,0.9574,1.0258,-0.1275,98.3146,,,4,2026-11-16
+Debt Scheme - Ultra Short Duration Fund | Regular,5.1013,5.7971,6.4599,5.9381,6.4617,0.4506,-0.464,1.0341,-0.7011,89.8215,,,4,2026-11-16
 Equity Scheme - Contra Fund | Direct,-1.8459,-0.4305,12.8858,14.1404,20.2717,15.1,0.3418,0.9343,1.1329,99.7655,94.8916,1.0479,2,2026-11-16
 Equity Scheme - Contra Fund | Regular,-2.7004,-1.4283,11.6819,12.9055,18.9407,15.0932,0.2649,0.934,0.0705,96.4787,96.7005,0.9947,3,2026-11-16
 Equity Scheme - Dividend Yield Fund | Direct,0.9691,1.5555,12.2506,12.4506,18.1476,15.5715,0.301,0.9347,0.8503,97.5391,93.7152,1.0346,9,2026-11-16
@@ -54,7 +54,7 @@ Equity Scheme - Sectoral/ Thematic | Auto & Mobility | Regular,20.4234,25.979,,,
 Equity Scheme - Sectoral/ Thematic | Banking & Financial Services | Direct,2.733,3.744,13.7404,11.8513,16.34,17.4269,0.3852,0.9348,0.7974,93.4234,89.8153,1.0668,17,2026-11-16
 Equity Scheme - Sectoral/ Thematic | Banking & Financial Services | Regular,1.6284,2.4885,12.3241,10.5676,14.9986,17.4253,0.3059,0.9349,-0.4501,90.1047,92.6059,0.9941,17,2026-11-16
 Equity Scheme - Sectoral/ Thematic | Consumption | Direct,-0.3012,-1.5336,8.0632,9.6407,14.5536,16.5751,0.0786,0.9113,-2.9584,79.9877,93.1011,0.8709,16,2026-11-16
-Equity Scheme - Sectoral/ Thematic | Consumption | Regular,1.0626,0.0275,6.9015,8.5407,13.4039,16.5691,0.006,0.9111,-4.0787,77.0272,94.8008,0.8225,18,2026-11-16
+Equity Scheme - Sectoral/ Thematic | Consumption | Regular,0.9901,0.0275,6.9015,8.5407,13.4039,16.5691,0.006,0.9111,-4.0787,77.0272,94.8008,0.8225,17,2026-11-16
 Equity Scheme - Sectoral/ Thematic | Digital | Direct,-2.3738,-1.7146,4.9499,3.3512,11.1297,21.4102,-0.1057,1.0097,-5.1558,85.4672,104.3552,0.8189,4,2026-11-16
 Equity Scheme - Sectoral/ Thematic | Digital | Regular,-3.4214,-2.9286,3.7408,2.0611,9.7614,21.3865,-0.1611,1.0086,-6.299,82.9354,105.6657,0.7848,4,2026-11-16
 Equity Scheme - Sectoral/ Thematic | ESG | Direct,1.4363,1.8064,11.3065,8.9728,14.5626,15.934,0.2386,0.9783,1.1179,100.5919,95.8471,1.0523,8,2026-11-16
@@ -74,7 +74,7 @@ Equity Scheme - Sectoral/ Thematic | MNC | Regular,4.2807,4.0474,7.1771,6.7149,1
 Equity Scheme - Sectoral/ Thematic | Manufacturing | Direct,12.6231,11.8856,18.4494,16.6086,22.496,19.2325,0.5837,1.031,0.991,103.9781,99.9902,1.0457,7,2026-11-16
 Equity Scheme - Sectoral/ Thematic | Manufacturing | Regular,10.2157,8.7177,16.9917,15.5076,21.2995,19.2131,0.51,1.0301,-0.2373,100.5704,101.3933,0.9974,9,2026-11-16
 Equity Scheme - Sectoral/ Thematic | Other theme | Direct,4.9844,5.2572,13.9656,12.8408,18.9658,16.9143,0.4085,0.9748,2.5615,107.1074,95.4652,1.1315,71,2026-11-16
-Equity Scheme - Sectoral/ Thematic | Other theme | Regular,3.9259,3.9217,12.8673,11.6498,17.7208,16.8138,0.345,0.9697,1.6038,103.6405,96.6772,1.0797,72,2026-11-16
+Equity Scheme - Sectoral/ Thematic | Other theme | Regular,3.9312,3.8891,12.7209,11.6498,17.7208,16.9057,0.3357,0.9744,1.4562,103.6387,97.3564,1.0734,73,2026-11-16
 Equity Scheme - Sectoral/ Thematic | PSU | Direct,2.901,2.0486,19.0191,22.3662,29.9439,21.2538,0.5231,0.9017,3.7087,96.0707,85.7657,1.1206,4,2026-11-16
 Equity Scheme - Sectoral/ Thematic | PSU | Regular,1.863,0.8641,17.6243,20.8944,28.3758,21.2343,0.4591,0.9008,2.5334,93.8975,87.8741,1.0688,4,2026-11-16
 Equity Scheme - Sectoral/ Thematic | Pharma | Direct,21.8431,19.0971,22.5966,15.591,22.3454,15.4051,0.9422,0.9681,0.5956,95.6101,92.13,1.0657,4,2026-11-16
@@ -255,32 +255,32 @@ Hybrid Scheme - Balanced Hybrid Fund | Direct,,,,,,,,,,,,,1,2026-11-16
 Hybrid Scheme - Balanced Hybrid Fund | Regular,,,,,,,,,,,,,1,2026-11-16
 Hybrid Scheme - Conservative Hybrid Fund | Direct,2.5962,3.1425,7.6172,7.0257,8.9689,3.9768,0.2852,,,,,,7,2026-11-16
 Hybrid Scheme - Conservative Hybrid Fund | Regular,2.0013,2.4503,6.8557,6.26,8.1798,3.975,0.0896,,,,,,7,2026-11-16
-Hybrid Scheme - Dynamic Asset Allocation or Balanced Advantage | Direct,3.2784,3.4748,10.0085,9.2246,11.987,9.8679,0.3304,,,,,,21,2026-11-16
-Hybrid Scheme - Dynamic Asset Allocation or Balanced Advantage | Regular,2.3018,2.3486,8.7248,7.9437,10.6834,9.8657,0.1997,,,,,,22,2026-11-16
-Hybrid Scheme - Equity Savings | Direct,3.7593,4.26,8.305,7.5941,9.5753,4.5331,0.3332,,,,,,16,2026-11-16
-Hybrid Scheme - Equity Savings | Regular,3.2135,3.5989,7.6493,6.9435,8.9346,4.5281,0.184,,,,,,17,2026-11-16
+Hybrid Scheme - Dynamic Asset Allocation or Balanced Advantage | Direct,3.2784,3.4748,10.0085,9.2246,11.987,9.8679,0.3304,1.0489,1.4162,108.0884,96.0414,1.159,22,2026-11-16
+Hybrid Scheme - Dynamic Asset Allocation or Balanced Advantage | Regular,2.3018,2.3486,8.7248,7.9437,10.6834,9.8657,0.1997,1.0489,0.2472,102.1871,100.2199,1.0469,22,2026-11-16
+Hybrid Scheme - Equity Savings | Direct,3.7593,4.26,8.305,7.5941,9.5753,4.5331,0.3332,0.7644,0.3701,86.0867,62.2775,1.7241,16,2026-11-16
+Hybrid Scheme - Equity Savings | Regular,3.2135,3.5989,7.6493,6.9435,8.9346,4.5281,0.184,0.7619,-0.2298,81.6182,64.6891,1.6127,17,2026-11-16
 Hybrid Scheme - Multi Asset Allocation | Direct,2.8882,5.3913,15.0983,14.1939,18.8058,9.5232,0.8001,,,,,,19,2026-11-16
 Hybrid Scheme - Multi Asset Allocation | Regular,1.7949,4.1521,13.8334,12.7553,17.3127,9.5137,0.6584,,,,,,19,2026-11-16
 Hybrid Schemes - Aggressive Hybrid Fund | Direct,2.7238,2.899,11.7246,10.2647,14.8368,12.2993,0.3758,,,,,,17,2026-11-16
 Hybrid Schemes - Aggressive Hybrid Fund | Regular,1.7223,1.7403,10.4379,9.0225,13.5328,12.2949,0.2736,,,,,,17,2026-11-16
 Hybrid Schemes - Arbitrage Fund | Direct,5.5666,6.4155,7.0984,6.6905,7.2971,0.5677,0.9589,0.6637,-0.0046,96.1476,,,17,2026-11-16
 Hybrid Schemes - Arbitrage Fund | Regular,4.8852,5.6707,6.4071,6.0007,6.6002,0.559,-0.2606,0.6521,-0.6384,86.8353,,,16,2026-11-16
-Hybrid Schemes - Balanced Advantage Fund/ Dynamic Asset Allocation | Direct,2.8386,3.1203,10.3839,9.1977,12.7558,9.6963,0.3483,,,,,,16,2026-11-16
-Hybrid Schemes - Balanced Advantage Fund/ Dynamic Asset Allocation | Regular,1.6072,1.7131,8.8777,7.7319,11.2554,9.6963,0.1947,,,,,,16,2026-11-16
+Hybrid Schemes - Balanced Advantage Fund/ Dynamic Asset Allocation | Direct,2.8386,3.1203,10.3839,9.1977,12.7558,9.6963,0.3483,1.0645,1.6243,110.0404,96.5666,1.1548,16,2026-11-16
+Hybrid Schemes - Balanced Advantage Fund/ Dynamic Asset Allocation | Regular,1.6072,1.7131,8.8777,7.7319,11.2554,9.6963,0.1947,1.0649,0.2583,103.1055,101.405,1.0283,16,2026-11-16
 Hybrid Schemes - Balanced Hybrid Fund | Direct,4.7767,4.4581,11.3115,,,8.0893,0.5384,,,,,,3,2026-11-16
 Hybrid Schemes - Balanced Hybrid Fund | Regular,3.3851,2.8701,9.6518,,,8.0956,0.3361,,,,,,7,2026-11-16
 Hybrid Schemes - Conservative Hybrid Fund | Direct,2.7295,3.033,8.0129,7.6367,9.6932,4.5789,0.2809,,,,,,12,2026-11-16
 Hybrid Schemes - Conservative Hybrid Fund | Regular,2.0096,2.1434,6.963,6.9291,8.7403,4.5505,0.0493,,,,,,13,2026-11-16
-Hybrid Schemes - Equity Savings Fund | Direct,4.9161,5.3643,10.0235,8.4121,11.0282,6.219,0.4843,,,,,,9,2026-11-16
-Hybrid Schemes - Equity Savings Fund | Regular,3.8125,4.0927,8.7228,7.0611,9.6506,6.2225,0.273,,,,,,9,2026-11-16
+Hybrid Schemes - Equity Savings Fund | Direct,4.9161,5.3643,10.0235,8.4121,11.0282,6.219,0.4843,1.0095,1.5353,107.2838,83.4234,1.554,9,2026-11-16
+Hybrid Schemes - Equity Savings Fund | Regular,3.8125,4.0927,8.7228,7.0611,9.6506,6.2225,0.273,1.011,0.3491,99.4908,91.0906,1.2807,9,2026-11-16
 Hybrid Schemes - Multi Asset Allocation Fund | Direct,3.5771,5.8827,14.1402,11.7019,16.4593,9.192,0.8271,,,,,,18,2026-11-16
 Hybrid Schemes - Multi Asset Allocation Fund | Regular,2.4093,4.5066,12.8303,10.5883,15.3115,9.1884,0.6814,,,,,,18,2026-11-16
 Income/Debt Oriented Schemes - 10-year Constant Maturity Gilt Fund | Direct,1.8168,2.1544,6.5642,5.4447,7.6601,3.2039,0.0228,1.0175,0.4466,105.4528,98.7832,1.0688,5,2026-11-16
 Income/Debt Oriented Schemes - 10-year Constant Maturity Gilt Fund | Regular,1.5799,1.8809,6.2735,5.215,7.4219,3.2042,-0.0669,1.0176,0.1755,102.9975,102.7558,1.0043,5,2026-11-16
 Income/Debt Oriented Schemes - Banking and PSU Debt Fund | Direct,3.879,4.2785,6.8889,6.2488,7.2962,1.6197,0.2335,,,,,,16,2026-11-16
 Income/Debt Oriented Schemes - Banking and PSU Debt Fund | Regular,3.574,3.9256,6.5228,5.8872,6.9315,1.6193,0.0084,,,,,,16,2026-11-16
-Income/Debt Oriented Schemes - Corporate Bond Fund | Direct,4.0376,4.4704,7.194,6.3256,7.4443,1.6341,0.3972,,,,,,9,2026-11-16
-Income/Debt Oriented Schemes - Corporate Bond Fund | Regular,3.7439,4.1126,6.8029,5.8297,6.9439,1.6401,0.1563,,,,,,10,2026-11-16
+Income/Debt Oriented Schemes - Corporate Bond Fund | Direct,4.0376,4.4704,7.194,6.3256,7.4443,1.6341,0.3972,0.6458,0.4682,92.315,5.1536,26.0079,9,2026-11-16
+Income/Debt Oriented Schemes - Corporate Bond Fund | Regular,3.7439,4.1126,6.8029,5.8297,6.9439,1.6401,0.1563,0.6493,0.1047,88.5297,14.0465,7.2539,10,2026-11-16
 Income/Debt Oriented Schemes - Credit Risk Fund | Direct,5.8742,6.6262,8.9499,7.5202,8.4567,2.4931,1.1502,,,,,,5,2026-11-16
 Income/Debt Oriented Schemes - Credit Risk Fund | Regular,5.1685,5.807,8.1046,6.6441,7.5781,2.4912,0.6445,,,,,,5,2026-11-16
 Income/Debt Oriented Schemes - Dynamic Term Fund | Direct,3.2978,3.7892,6.6884,6.0719,7.4631,2.8601,0.0877,,,,,,21,2026-11-16
@@ -289,8 +289,8 @@ Income/Debt Oriented Schemes - Floating Interest Rates Fund | Direct,4.9873,5.61
 Income/Debt Oriented Schemes - Floating Interest Rates Fund | Regular,4.648,5.2231,7.0863,6.3886,7.368,1.283,0.4011,,,,,,12,2026-11-16
 Income/Debt Oriented Schemes - Gilt Fund | Direct,2.2339,2.9333,5.9822,5.4338,7.0727,3.9565,-0.1199,1.0698,-0.4922,96.866,108.9748,0.9416,12,2026-11-16
 Income/Debt Oriented Schemes - Gilt Fund | Regular,1.8679,2.448,5.3632,4.8321,6.4303,3.9078,-0.2729,1.0514,-1.0735,91.3319,113.5613,0.8515,15,2026-11-16
-Income/Debt Oriented Schemes - Liquid Fund | Direct,0.795,1.206,2.8528,3.3348,5.0345,2.6813,1.0432,,,,,,26,2026-11-16
-Income/Debt Oriented Schemes - Liquid Fund | Regular,-2.6858,-2.3576,1.2846,2.5279,5.6252,5.2031,0.3931,,,,,,26,2026-11-16
+Income/Debt Oriented Schemes - Liquid Fund | Direct,0.795,1.206,2.8528,3.3348,5.0345,2.6813,1.0432,-1.5,-2.1904,41.7732,,,26,2026-11-16
+Income/Debt Oriented Schemes - Liquid Fund | Regular,-2.6858,-2.3576,1.2846,2.5279,5.6252,5.2031,0.3931,-3.4776,-2.2326,18.0031,,,26,2026-11-16
 Income/Debt Oriented Schemes - Long Term Fund | Direct,1.4074,2.1674,5.8187,5.3224,7.5707,4.9051,-0.0982,,,,,,11,2026-11-16
 Income/Debt Oriented Schemes - Long Term Fund | Regular,0.9964,1.6936,5.288,4.878,7.1214,4.9039,-0.2073,,,,,,11,2026-11-16
 Income/Debt Oriented Schemes - Medium Term Fund | Direct,4.5286,5.0628,7.6039,6.9383,7.968,1.813,0.5773,,,,,,12,2026-11-16
@@ -305,8 +305,8 @@ Income/Debt Oriented Schemes - Sectoral Fund | Direct,,,,,,,,,,,,,3,2026-11-16
 Income/Debt Oriented Schemes - Sectoral Fund | Regular,,,,,,,,,,,,,3,2026-11-16
 Income/Debt Oriented Schemes - Short Term Fund | Direct,4.2871,4.77,7.2327,6.6847,7.6288,1.4208,0.4853,0.6051,0.4696,92.3874,-13.7092,18.0586,21,2026-11-16
 Income/Debt Oriented Schemes - Short Term Fund | Regular,3.6727,4.0662,6.5663,5.9404,6.9046,1.4251,0.0221,0.6127,-0.151,85.6371,3.675,22.9553,27,2026-11-16
-Income/Debt Oriented Schemes - Ultra Short Term Fund | Direct,5.6203,6.3764,7.1738,6.6209,7.161,0.47,1.2472,,,,,,22,2026-11-16
-Income/Debt Oriented Schemes - Ultra Short Term Fund | Regular,5.1658,5.8526,6.6402,6.1397,6.6792,0.468,0.1038,,,,,,25,2026-11-16
+Income/Debt Oriented Schemes - Ultra Short Term Fund | Direct,5.6203,6.3764,7.1738,6.6209,7.161,0.47,1.2472,1.0899,-0.0641,99.8011,,,22,2026-11-16
+Income/Debt Oriented Schemes - Ultra Short Term Fund | Regular,5.1658,5.8526,6.6402,6.1397,6.6792,0.468,0.1038,1.0852,-0.5578,92.3809,,,25,2026-11-16
 Income/Debt Oriented Schemes - Ultra Short to Short Term Fund | Direct,5.1848,5.9064,7.235,6.6185,7.3268,0.717,0.9186,0.2702,0.5379,81.608,-111.4465,,25,2026-11-16
 Income/Debt Oriented Schemes - Ultra Short to Short Term Fund | Regular,4.7465,5.3935,6.6986,6.1102,6.8067,0.7036,0.1769,0.2667,0.0407,75.9676,-99.3111,,31,2026-11-16
 Index Funds - Debt Funds | NIFTY 8-13 YR G-SEC | Direct,1.3003,1.547,,,,,,,,,,,1,2026-11-16
@@ -658,7 +658,7 @@ Other Scheme - Index Funds | NIFTY500 MULTICAP MOMENTUM QUALITY 50 | Direct,0.17
 Other Scheme - Index Funds | NIFTY500 MULTICAP MOMENTUM QUALITY 50 | Regular,-0.4072,-4.0843,,,,,,,,,,,1,2026-11-16
 Other Scheme - Index Funds | NIFTYIT | Direct,-14.5542,-10.9226,,,,,,,,,,,1,2026-11-16
 Other Scheme - Index Funds | NIFTYIT | Regular,-15.0346,-11.4971,,,,,,,,,,,1,2026-11-16
-Other Scheme - Index Funds | OTHER INDEX | Direct,3.9961,4.5551,7.334,6.5946,8.6859,2.4621,0.5453,1.0085,-0.2216,97.7537,112.7108,0.8913,58,2026-11-16
+Other Scheme - Index Funds | OTHER INDEX | Direct,4.0226,4.5848,7.334,6.5946,8.6859,2.4621,0.5453,1.0085,-0.2216,97.7537,112.7108,0.8913,59,2026-11-16
 Other Scheme - Index Funds | OTHER INDEX | Regular,3.795,4.3212,7.0947,6.2909,8.3844,2.4612,0.384,1.0076,-0.4384,95.0774,117.9695,0.8268,59,2026-11-16
 Other Scheme - Index Funds | S&P 500 | Direct,16.0808,19.522,24.0765,15.8418,21.7893,12.431,1.3646,0.9998,-0.1974,99.4219,100.6213,0.9881,1,2026-11-16
 Other Scheme - Index Funds | S&P 500 | Regular,15.6138,18.9634,23.4441,15.2251,21.1307,12.4225,1.3156,0.9991,-0.6999,97.9266,102.1557,0.9586,1,2026-11-16
