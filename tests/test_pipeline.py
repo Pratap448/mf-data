@@ -17,6 +17,7 @@ SCHEMES = [  # code, name, category, drift
     (200, "Alpha Small Cap Fund - Regular Plan - Growth", "Equity Scheme - Small Cap Fund", 0.18),
     (201, "Beta Small Cap Fund - Regular Plan - Growth", "Equity Scheme - Small Cap Fund", 0.15),
     (300, "Alpha Nifty 50 Index Fund - Regular Plan - Growth", "Other Scheme - Index Funds", 0.12),
+    (301, "Alpha Nifty 100 Index Fund - Direct Plan - Growth", "Other Scheme - Index Funds", 0.125),
 ]
 DATES = pd.bdate_range(TODAY - dt.timedelta(days=365 * 7), TODAY)
 PATH = {}
@@ -67,12 +68,13 @@ def run():
     amfi.time.sleep = lambda *_: None
     amfi._mfapi_one = fake_mfapi
     amfi._full_names = lambda: {}
+    from mfrepo import nse_prices; nse_prices.update = lambda log=print: None
     indices._fetch_year = fake_year
     indices._session = lambda: None
     indices.time.sleep = lambda *_: None
     build.main()
     fm = pd.read_csv(C.OUT / "fund_metrics.csv")
-    assert set(fm.amfi_code) == {100, 101, 102, 103, 104, 200, 201, 300}, fm.amfi_code.tolist()  # all options kept
+    assert set(fm.amfi_code) == {100, 101, 102, 103, 104, 200, 201, 300, 301}, fm.amfi_code.tolist()  # all options kept
     a, b = fm.set_index("amfi_code").loc[100], fm.set_index("amfi_code").loc[104]
     assert a.ret_3y == b.ret_3y and b.metrics_basis.startswith("Growth option 100"), b.metrics_basis  # IDCW -> Growth sibling
     assert "payouts not added back" in fm.set_index("amfi_code").loc[103, "metrics_basis"]  # no sibling -> own NAV
