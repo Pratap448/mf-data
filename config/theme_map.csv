@@ -1,0 +1,18 @@
+theme,pattern,benchmarks
+International,global|international|world|overseas|\bus\b|nasdaq|asian|china|japan,S&P 500|NASDAQ 100
+PSU,\bpsu\b|\bpse\b|public sector|\bcpse\b,NIFTY PSE|BSE PSU
+PSU Bank,psu bank,NIFTY PSU BANK|NIFTY BANK
+Banking & Financial Services,bank|financial|finserv|bfsi,NIFTY FINANCIAL SERVICES|NIFTY BANK
+Digital,digital,NIFTY INDIA DIGITAL|NIFTY IT
+IT & Technology,\bit\b|technology|\btech\b,NIFTY IT|BSE INFORMATION TECHNOLOGY
+Pharma,pharma,NIFTY PHARMA|NIFTY HEALTHCARE
+Healthcare,health,NIFTY HEALTHCARE|NIFTY PHARMA|BSE HEALTHCARE
+Infrastructure,infra,NIFTY INFRASTRUCTURE|BSE INDIA INFRASTRUCTURE
+Consumption,consum|fmcg,NIFTY INDIA CONSUMPTION|NIFTY FMCG
+MNC,\bmnc\b|multinational,NIFTY MNC
+Manufacturing,manufactur,NIFTY INDIA MANUFACTURING
+Energy & Power,energy|power|oil|natural resources,NIFTY ENERGY|NIFTY OIL & GAS|BSE POWER
+Auto & Mobility,\bauto|\bev\b|mobility,NIFTY AUTO|NIFTY EV AND NEW AGE AUTOMOTIVE
+Defence,defen,NIFTY INDIA DEFENCE|BSE INDIA DEFENCE
+ESG,\besg\b,NIFTY 100 ESG SECTOR LEADERS|NIFTY 100 ESG
+Other theme,.,NIFTY 500
