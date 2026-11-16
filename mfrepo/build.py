@@ -5,7 +5,7 @@ Run:  python -m mfrepo.build            (full refresh / incremental if cache exi
 """
 import sys, json, re, datetime as dt
 import numpy as np, pandas as pd
-from . import config as C, amfi, indices, metrics as M
+from . import config as C, amfi, indices, metrics as M, benchmarks as B
 
 METRIC_COLS = ["ret_ytd", "ret_1y", "ret_3y", "ret_5y", "roll3y_avg", "sd_3y", "sharpe_3y", "beta_3y",
                "alpha_3y", "up_capture", "down_capture", "capture_ratio"]
@@ -33,6 +33,8 @@ def bench_map(master):
     def pick(row):
         if row.amfi_code in over:
             return over[row.amfi_code]
+        if re.search(r"index fund|etf", str(row.sebi_category), re.I):
+            return B.tracked_index(row.scheme_name)  # index funds / ETFs: the index they track
         for t, b in zip(rules.match_text, rules.benchmark_index):
             if isinstance(row.sebi_category, str) and t.lower() in row.sebi_category.lower():
                 return b
@@ -129,10 +131,14 @@ def main(offline=False):
         f"{int(((full_master.option != 'Growth') & ~full_master.amfi_code.isin(sib)).sum()):,} without sibling (own NAV)")
     if not offline:
         navs = refresh_navs(master, today)
-        tri = refresh_tri(sorted(set(master.benchmark_index.dropna())), today)
     if navs is None or not len(navs):
         raise RuntimeError("No NAV history available, so nothing to compute. Check the NAV/DIAG lines above.")
     asof = navs.date.max()
+    if not offline:
+        log("Building benchmark series…")
+        tri, srcs = B.build(sorted(set(master.benchmark_index.dropna())), master, navs, asof, log)
+        save_cache(tri, "tri")
+        srcs.to_csv(C.OUT / "benchmark_sources.csv", index=False)
     log(f"As-of date: {asof.date()}  | schemes with NAVs: {navs.amfi_code.nunique():,}")
 
     tri_s = {n: g.set_index("date").tri.sort_index() for n, g in tri.groupby("index")} if len(tri) else {}
