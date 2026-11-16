@@ -1,8 +1,8 @@
 {
  "as_of": "2026-11-15",
- "run_at": "2026-11-16T08:23:24",
+ "run_at": "2026-11-16T15:35:40",
  "schemes_in_master": 14455,
- "schemes_with_metrics": 9033,
+ "schemes_with_metrics": 9037,
  "benchmarks_loaded": [
   "BSE 1000",
   "BSE 200 EQUAL WEIGHT",
@@ -83,6 +83,8 @@
   "CRISIL-IBX FINANCIAL SERVICES 9 TO 12 MONTHS DEBT",
   "CRISIL-IBX FINANCIAL SERVICES 9-12 MONTHS DEBT",
   "CRISIL-IBX GILT",
+  "DOMESTIC GOLD PRICE",
+  "DOMESTIC SILVER PRICE",
   "MSCI INDIA",
   "MSCI INDIA DOMESTIC & WORLD HEALTHCARE 45",
   "NASDAQ 100",
