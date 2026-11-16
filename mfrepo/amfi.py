@@ -19,6 +19,7 @@ def _get(url, tries=4):
         try:
             r = requests.get(url, headers=C.HTTP_HEADERS, timeout=120)
             r.raise_for_status()
+            r.encoding = "utf-8"  # AMFI files are UTF-8; avoids garbled names like "Childrenâs"
             return r.text
         except Exception as e:  # network hiccups: back off and retry
             if i == tries - 1:

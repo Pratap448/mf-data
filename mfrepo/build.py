@@ -5,7 +5,7 @@ Run:  python -m mfrepo.build            (full refresh / incremental if cache exi
 """
 import sys, json, re, datetime as dt
 import numpy as np, pandas as pd
-from . import config as C, amfi, indices, metrics as M, benchmarks as B
+from . import config as C, amfi, indices, metrics as M, benchmarks as B, nse_prices
 
 METRIC_COLS = ["ret_ytd", "ret_1y", "ret_3y", "ret_5y", "roll3y_avg", "sd_3y", "sharpe_3y", "beta_3y",
                "alpha_3y", "up_capture", "down_capture", "capture_ratio"]
@@ -33,6 +33,12 @@ def bench_map(master):
     def pick(row):
         if row.amfi_code in over:
             return over[row.amfi_code]
+        cat_txt = f"{row.sebi_category} {row.scheme_name}"
+        if re.search(r"\bgold\b", cat_txt, re.I) and re.search(r"etf|fof|fund of fund", str(row.sebi_category), re.I) \
+                and not re.search(r"silver", str(row.sebi_category), re.I):
+            return "DOMESTIC GOLD PRICE"
+        if re.search(r"\bsilver\b", cat_txt, re.I) and re.search(r"etf|fof|fund of fund", str(row.sebi_category), re.I):
+            return "DOMESTIC SILVER PRICE"
         if re.search(r"index fund|etf", str(row.sebi_category), re.I):
             return B.tracked_index(row.scheme_name)  # index funds / ETFs: the index they track
         for t, b in zip(rules.match_text, rules.benchmark_index):
@@ -85,7 +91,7 @@ def refresh_navs(master, today):
     """Full history for every kept scheme on each run. mfapi.in is one request per scheme
     whatever the date range, so a partial refresh saves nothing and risks gaps."""
     keep = set(master.amfi_code)
-    full_start = (today - pd.DateOffset(years=C.HISTORY_YEARS) - pd.Timedelta(days=30)).date()
+    full_start = pd.Timestamp(C.HISTORY_START).date()
     log(f"NAV history (full, {len(keep):,} schemes) from {full_start} to {today.date()}")
     navs = amfi.nav_history(full_start, today.date(), keep, log)
     navs = navs.drop_duplicates(["amfi_code", "date"], keep="last")
@@ -96,7 +102,7 @@ def refresh_navs(master, today):
 def refresh_tri(names, today):
     cache = load_cache("tri")
     have = set(cache["index"]) if cache is not None and len(cache) else set()
-    full_start = (today - pd.DateOffset(years=C.HISTORY_YEARS) - pd.Timedelta(days=30)).date()
+    full_start = pd.Timestamp(C.HISTORY_START).date()
     parts = []
     for n in names:
         if n in have and indices.manual(n) is None:
@@ -139,6 +145,11 @@ def main(offline=False):
         tri, srcs = B.build(sorted(set(master.benchmark_index.dropna())), master, navs, asof, log)
         save_cache(tri, "tri")
         srcs.to_csv(C.OUT / "benchmark_sources.csv", index=False)
+        try:
+            log("Updating NSE equity index prices…")
+            nse_prices.update(log)
+        except Exception as e:  # price history is informational; never fail the run on it
+            log(f"  WARNING: NSE index price update failed: {e}")
     log(f"As-of date: {asof.date()}  | schemes with NAVs: {navs.amfi_code.nunique():,}")
 
     tri_s = {n: g.set_index("date").tri.sort_index() for n, g in tri.groupby("index")} if len(tri) else {}
@@ -202,7 +213,11 @@ def main(offline=False):
     cat.round(4).assign(as_of=asof.date()).to_csv(C.OUT / "category_stats.csv", index=False)
 
     if len(tri):
-        tri[tri.date >= asof - pd.DateOffset(years=C.HISTORY_YEARS)].to_csv(C.OUT / "benchmark_tri.csv", index=False)
+        tri[tri.date >= pd.Timestamp(C.HISTORY_START)].sort_values(["index", "date"]).round({"tri": 4}).to_csv(
+            C.OUT / "benchmark_tri.csv.gz", index=False, compression="gzip")
+        old = C.OUT / "benchmark_tri.csv"
+        if old.exists():
+            old.unlink()  # replaced by the .gz file
     me = navs.assign(m=navs.date.dt.to_period("M")).sort_values("date").groupby(["amfi_code", "m"]).last().reset_index()
     me[["amfi_code", "date", "nav"]].to_csv(C.OUT / "nav_month_end.csv.gz", index=False, compression="gzip")
 
