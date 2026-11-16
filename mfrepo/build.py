@@ -25,6 +25,27 @@ def save_cache(df, name):
     df.to_parquet(C.CACHE / f"{name}.parquet", index=False)
 
 
+_THEMES = None
+
+
+def theme_of(row):
+    """Sectoral/Thematic funds -> (theme label, [benchmark candidates in priority order])."""
+    global _THEMES
+    cat = str(row.sebi_category)
+    if not re.search(r"sectoral|thematic", cat, re.I) or not re.search(r"equity", cat, re.I):
+        return None, None
+    if _THEMES is None:
+        _THEMES = pd.read_csv(C.CONFIG / "theme_map.csv")
+    name = str(row.scheme_name)
+    brand = re.sub(r"\s*mutual fund\s*$", "", str(getattr(row, "amc", "") or ""), flags=re.I).strip()
+    if brand and name.lower().startswith(brand.lower()):
+        name = name[len(brand):]  # AMC brand words (e.g. 'Bajaj Finserv', 'Bank of India') are not the theme
+    for t in _THEMES.itertuples():
+        if re.search(t.pattern, name, re.I):
+            return t.theme, t.benchmarks.split("|")
+    return "Other theme", ["NIFTY 500"]
+
+
 def bench_map(master):
     rules = pd.read_csv(C.CONFIG / "benchmark_map.csv")
     over = pd.read_csv(C.CONFIG / "scheme_benchmark_overrides.csv")
@@ -33,6 +54,9 @@ def bench_map(master):
     def pick(row):
         if row.amfi_code in over:
             return over[row.amfi_code]
+        th, cands = theme_of(row)
+        if th:
+            return "|".join(cands)  # resolved to the first candidate with data after benchmarks are built
         cat_txt = f"{row.sebi_category} {row.scheme_name}"
         if re.search(r"\bgold\b", cat_txt, re.I) and re.search(r"etf|fof|fund of fund", str(row.sebi_category), re.I) \
                 and not re.search(r"silver", str(row.sebi_category), re.I):
@@ -77,6 +101,9 @@ def peer_key(row):
     """Peer group for ranking: SEBI category + plan; index funds/ETFs grouped by the index they track.
     Close-ended / interval schemes are kept in their own groups."""
     cat = row.sebi_category or ""
+    th, _ = theme_of(row)
+    if th:
+        cat = f"{cat} | {th}"
     if getattr(row, "scheme_type", "Open Ended") not in ("Open Ended", None) and isinstance(row.scheme_type, str):
         cat = f"{row.scheme_type} | {cat}"
     if re.search(r"index fund|etf", cat, re.I):
@@ -142,7 +169,8 @@ def main(offline=False):
     asof = navs.date.max()
     if not offline:
         log("Building benchmark series…")
-        tri, srcs = B.build(sorted(set(master.benchmark_index.dropna())), master, navs, asof, log)
+        names = sorted({n for v in master.benchmark_index.dropna() for n in str(v).split("|")} | {"NIFTY 50", "NIFTY 500"})
+        tri, srcs = B.build(names, master, navs, asof, log)
         save_cache(tri, "tri")
         srcs.to_csv(C.OUT / "benchmark_sources.csv", index=False)
         try:
@@ -153,6 +181,16 @@ def main(offline=False):
     log(f"As-of date: {asof.date()}  | schemes with NAVs: {navs.amfi_code.nunique():,}")
 
     tri_s = {n: g.set_index("date").tri.sort_index() for n, g in tri.groupby("index")} if len(tri) else {}
+
+    def resolve(v):
+        if not isinstance(v, str) or "|" not in v:
+            return v
+        c = v.split("|")
+        return next((x for x in c if x in tri_s), c[0])
+    master["benchmark_index"] = master.benchmark_index.map(resolve)
+    full_master["benchmark_index"] = full_master.benchmark_index.map(resolve)
+    if not offline:
+        full_master.to_csv(C.OUT / "scheme_master.csv", index=False)
     bench_rows = []
     for n, s in tri_s.items():
         bench_rows.append({"benchmark_index": n, **{f"bm_{k}": v for k, v in M.period_returns(s, asof).items()},
