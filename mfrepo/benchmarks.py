@@ -89,6 +89,8 @@ def commodity_candidates(master, metal):
 def build(names, master, navs, asof, log=print):
     """Return (tri_df[index,date,tri], sources_df) for the requested benchmark names."""
     composites.master = master
+    navs = navs.copy()
+    navs["date"] = pd.to_datetime(navs["date"]).astype("datetime64[ns]")
     cand = candidates(master)
     first = navs.groupby("amfi_code").date.min()
     last = navs.groupby("amfi_code").date.max()

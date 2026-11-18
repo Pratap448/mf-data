@@ -456,7 +456,10 @@ def attach_ter(master, ter):
     t["key"] = t.Scheme_Name.map(k)
     t = t.drop_duplicates("key").set_index("key")
     m = master.copy()
-    base = m.get("amfi_name", m.scheme_name).fillna(m.scheme_name).map(k)
+    strip = m.scheme_name.astype(str).str.replace(
+        r"(?i)\s*[-–(]?\s*\b(direct|regular)\b.*$|\s*[-–]\s*(growth|idcw|dividend|bonus).*$", "", regex=True)
+    nm = m["amfi_name"].where(m["amfi_name"].notna(), strip) if "amfi_name" in m else strip
+    base = nm.map(k)
     for col, r_, d_ in [("ter_total", "R_TER", "D_TER"), ("ter_base", "R_BER", "D_BER"),
                         ("ter_brokerage", "R_BrokerageCost", "D_BrokerageCost"),
                         ("ter_transaction", "R_TransactionCost", "D_TransactionCost"),

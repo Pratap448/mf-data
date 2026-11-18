@@ -131,6 +131,32 @@ def refresh_navs(master, today):
 
 
 # ================================================================================================ NAV store
+def norm_navs(navs):
+    """One dtype contract for every NAV frame: amfi_code int64, date datetime64, nav float64."""
+    if navs is None or len(navs) == 0:
+        return pd.DataFrame({"amfi_code": pd.Series(dtype="int64"), "date": pd.Series(dtype="datetime64[ns]"),
+                             "nav": pd.Series(dtype="float64")})
+    n = navs[["amfi_code", "date", "nav"]].copy()
+    n["amfi_code"] = pd.to_numeric(n["amfi_code"], errors="coerce")
+    n["date"] = pd.to_datetime(n["date"], errors="coerce").astype("datetime64[ns]")
+    n["nav"] = pd.to_numeric(n["nav"], errors="coerce").astype("float64")
+    n = n.dropna()
+    n["amfi_code"] = n["amfi_code"].astype("int64")
+    return n[n.nav > 0].drop_duplicates(["amfi_code", "date"], keep="last").reset_index(drop=True)
+
+
+def safe(step, status, fn, *a, default=None, **k):
+    """Run an optional step; on failure log it, record it in run_info and continue."""
+    try:
+        out = fn(*a, **k)
+        status[step] = "ok"
+        return out
+    except Exception as e:
+        status[step] = f"failed: {type(e).__name__}: {str(e)[:200]}"
+        log(f"  WARNING: {step} failed — {e}")
+        return default
+
+
 def nav_store_write(navs):
     """data/nav/nav_YYYY.parquet — one file per year; a year is rewritten only if its data changed."""
     d = C.OUT / "nav"
@@ -310,16 +336,13 @@ def main(offline=False):
     else:
         log("Downloading AMFI scheme master…")
         master_all = amfi.scheme_master()
-        master_all = amfi.official_plan_option(master_all, log)
+        master_all = safe("official_plan_option", status, amfi.official_plan_option, master_all, log,
+                          default=master_all)
+        sif_m, sif_n = pd.DataFrame(), pd.DataFrame()
         if C.INCLUDE_SIF:
-            try:
-                sif_m, sif_n = amfi.sif_data(log)
-                status["sif"] = f"{len(sif_m)} lines"
-            except Exception as e:
-                sif_m, sif_n = pd.DataFrame(), pd.DataFrame()
-                status["sif"] = f"failed: {e}"
-                log(f"  SIF failed: {e}")
-            master_all = pd.concat([master_all, sif_m], ignore_index=True) if len(sif_m) else master_all
+            sif_m, sif_n = safe("sif", status, amfi.sif_data, log, default=(pd.DataFrame(), pd.DataFrame()))
+            if len(sif_m):
+                master_all = pd.concat([master_all, sif_m], ignore_index=True)
     master_all["benchmark_index"] = bench_map(master_all)
     master_all["peer_group"] = master_all.apply(peer_key, axis=1)
     sib = sibling_map(master_all)
@@ -329,18 +352,18 @@ def main(offline=False):
 
     # ---------- NAVs
     if offline:
-        navs = nav_store_read()
+        navs = norm_navs(nav_store_read())
     else:
         mf = need[need.amfi_code < amfi.SIF_CODE_BASE]
-        navs = refresh_navs(mf, today)
+        navs = norm_navs(refresh_navs(mf, today))
         got = set(navs.amfi_code.unique())
         missing = [c for c in mf.amfi_code if c not in got]
         if missing:
-            fb = amfi.nav_fallback(missing[:400], C.HISTORY_START, today.date().isoformat(), log)
-            navs = pd.concat([navs, fb], ignore_index=True)
-        if C.INCLUDE_SIF and len(sif_n):
-            navs = pd.concat([navs, sif_n], ignore_index=True)
-        navs = navs.drop_duplicates(["amfi_code", "date"], keep="last")
+            fb = safe("nav_fallback", status, amfi.nav_fallback, missing[:400], C.HISTORY_START,
+                      today.date().isoformat(), log, default=None)
+            navs = norm_navs(pd.concat([navs, norm_navs(fb)], ignore_index=True))
+        if len(sif_n):
+            navs = norm_navs(pd.concat([navs, norm_navs(sif_n)], ignore_index=True))
         nav_store_write(navs)
     if navs is None or not len(navs):
         raise RuntimeError("No NAV history available.")
@@ -349,19 +372,22 @@ def main(offline=False):
     log(f"As-of {asof.date()} | schemes with NAVs {len(series):,}")
 
     # ---------- benchmarks
+    prev_tri = C.OUT / "benchmark_tri.csv.gz"
+    tri = None
     if not offline:
         log("Building benchmark series…")
         names = sorted({n for v in need.benchmark_index.dropna() for n in str(v).split("|")} | {"NIFTY 50", "NIFTY 500"})
-        tri, srcs = B.build(names, need, navs, asof, log)
-        srcs.to_csv(C.OUT / "benchmark_sources.csv", index=False)
-        tri[tri.date >= pd.Timestamp(C.HISTORY_START)].sort_values(["index", "date"]).round({"tri": 4}).to_csv(
-            C.OUT / "benchmark_tri.csv.gz", index=False, compression="gzip")
-        try:
-            nse_prices.update(log)
-        except Exception as e:
-            log(f"  WARNING: NSE price update failed: {e}")
-    else:
-        tri = pd.read_csv(C.OUT / "benchmark_tri.csv.gz", parse_dates=["date"])
+        res = safe("benchmarks", status, B.build, names, need, navs, asof, log, default=None)
+        if res is not None:
+            tri, srcs = res
+            tri["date"] = pd.to_datetime(tri["date"]).astype("datetime64[ns]")
+            srcs.to_csv(C.OUT / "benchmark_sources.csv", index=False)
+            tri[tri.date >= pd.Timestamp(C.HISTORY_START)].sort_values(["index", "date"]).round({"tri": 4}).to_csv(
+                prev_tri, index=False, compression="gzip")
+        safe("nse_prices", status, nse_prices.update, log)
+    if tri is None:
+        tri = pd.read_csv(prev_tri, parse_dates=["date"]) if prev_tri.exists() else \
+            pd.DataFrame(columns=["index", "date", "tri"])
     bm = {n: A.clean(g.set_index("date").tri) for n, g in tri.groupby("index")}
 
     def resolve(v):
@@ -372,19 +398,17 @@ def main(offline=False):
     master_all["benchmark_index"] = master_all.benchmark_index.map(resolve)
 
     # ---------- category index
-    cat = category_index(master_all[master_all.amfi_code.isin(series.keys())], series, asof)
+    cat = safe("category_index", status, category_index, master_all[master_all.amfi_code.isin(series.keys())],
+               series, asof, default={})
 
     # ---------- TER
+    ter = None
     if not offline and C.FETCH_TER:
-        try:
-            ter = amfi.ter_latest(log)
-        except Exception as e:
-            log(f"  TER failed: {e}")
-            ter = pd.DataFrame()
-    else:
+        ter = safe("ter", status, amfi.ter_latest, log, default=None)
+    if ter is None or not len(ter):
         f = C.OUT / "ter.csv"
         ter = pd.read_csv(f) if f.exists() else pd.DataFrame()
-    master_all = amfi.attach_ter(master_all, ter)
+    master_all = safe("attach_ter", status, amfi.attach_ter, master_all, ter, default=master_all)
     master_all.to_csv(C.OUT / "scheme_master.csv", index=False)
 
     # ---------- snapshot of standard measures
@@ -446,14 +470,9 @@ def main(offline=False):
 
     # ---------- holdings
     if not offline and C.FETCH_HOLDINGS:
-        try:
-            from . import holdings
-            log("AMC portfolios…")
-            holdings.run(master_all, log)
-            status["holdings"] = "ran"
-        except Exception as e:
-            status["holdings"] = f"failed: {e}"
-            log(f"  holdings failed: {e}")
+        from . import holdings
+        log("AMC portfolios…")
+        safe("holdings", status, holdings.run, master_all, log)
 
     info = {"as_of": str(asof.date()), "risk_window_end": str(risk_end.date()),
             "run_at": dt.datetime.now().isoformat(timespec="seconds"),

@@ -316,7 +316,9 @@ def _key(s):
 def match_schemes(titles, master, amc=None):
     """scheme_title -> AMFI base scheme (amfi_name) using token similarity within the AMC."""
     m = master.copy()
-    m["base"] = m.get("amfi_name", m.scheme_name).fillna(m.scheme_name)
+    strip = m.scheme_name.astype(str).str.replace(
+        r"(?i)\s*[-–(]?\s*\b(direct|regular)\b.*$|\s*[-–]\s*(growth|idcw|dividend|bonus).*$", "", regex=True)
+    m["base"] = m["amfi_name"].where(m["amfi_name"].notna(), strip) if "amfi_name" in m else strip
     cands = m
     if amc:
         a = _key(re.sub(r"(?i)mutual fund|asset management|amc|limited|ltd|company", "", amc)).split()[:2]
