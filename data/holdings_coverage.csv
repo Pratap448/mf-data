@@ -1,0 +1,56 @@
+amc,page,links_found,files,status,schemes_parsed,schemes_matched
+360 ONE Mutual Fund,https://www.360.one/asset/mutual-funds/downloads/,0,0,no file links on page (script-rendered site),,
+Abakkus Mutual Fund,https://www.abakkusmf.com/statutory-disclosures.html,11,1,ok,,
+Aditya Birla Sun Life Mutual Fund,https://mutualfund.adityabirlacapital.com/forms-and-downloads/portfolio,0,0,no file links on page (script-rendered site),,
+AlphaGrep Mutual Fund,https://www.alphagrepmf.ai/disclosures,0,0,no file links on page (script-rendered site),,
+Angel One Mutual Fund,https://www.angelonemf.com/downloads,0,0,page error: 403 Client Error: Forbidden for url: https://www.angelonemf.com/downloads,,
+ASK MUTUAL FUND,https://www.askmutualfund.com/#/downloads,0,0,no file links on page (script-rendered site),,
+Axis Mutual Fund,https://www.axismf.com/statutory-disclosures,0,0,no file links on page (script-rendered site),,
+Bajaj Finserv Mutual Fund,https://www.bajajamc.com/downloads?statutory-disclosures=,0,0,page error: 403 Client Error: Forbidden for url: https://www.bajajamc.com/downloads?statutor,,
+Bandhan Mutual Fund,https://bandhanmutual.com/downloads/disclosures,0,0,no file links on page (script-rendered site),,
+Bank of India Mutual Fund,https://www.boimf.in/investor-corner#t2,0,0,no file links on page (script-rendered site),,
+Baroda BNP Paribas Mutual Fund,https://www.barodabnpparibasmf.in/downloads/monthly-portfolio-scheme,6,1,ok,,
+Canara Robeco Mutual Fund,https://www.canararobeco.com/documents/statutory-disclosures/scheme-dashboard/scheme-monthly-portfolio/,0,0,no file links on page (script-rendered site),,
+Capitalmind Mutual Fund,https://capitalmindmf.com/statutory-disclosures.html,759,30,ok,96.0,1.0
+(AMFI short link),https://bit.ly/4eN2G08,0,0,no file links on page (script-rendered site),,
+Choice Mutual Fund,https://choicemf.com/disclosures/monthly-portfolio,1,0,no matching file links (site may load links by script),,
+DSP Mutual Fund,https://www.dspim.com/about-us/mandatory-disclosure/portfolio-disclosures,343,27,ok,321.0,86.0
+Edelweiss Mutual Fund,https://www.edelweissmf.com/statutory#Portfolio-of-Schemes,1,0,no matching file links (site may load links by script),,
+Franklin Templeton Mutual Fund,https://www.franklintempletonindia.com/investor/reports?firstFilter-12,0,0,no file links on page (script-rendered site),,
+Groww Mutual Fund,https://growwmf.in/statutory-disclosure/portfolio,22,1,ok,62.0,60.0
+HDFC Mutual Fund,https://www.hdfcfund.com/statutory-disclosure/portfolio/monthly-portfolio,0,0,page error: 403 Client Error: Forbidden for url: https://www.hdfcfund.com/statutory-disclosu,,
+Helios Mutual Fund,https://www.heliosmf.in/portfolio-disclosure/,302,29,ok,12.0,0.0
+HSBC Mutual Fund,https://www.assetmanagement.hsbc.co.in/en/mutual-funds/investor-resources/information-library,0,0,"page error: HTTPSConnectionPool(host='www.assetmanagement.hsbc.co.in', port=443): Read timed",,
+ICICI Prudential Mutual Fund,https://www.icicipruamc.com/news-and-media/downloads?currentTabFilter=Disclosures,0,0,no file links on page (script-rendered site),,
+IL&FS Mutual Fund (IDF),http://www.ilfsinfrafund.com/other.php,0,0,"page error: HTTPConnectionPool(host='www.ilfsinfrafund.com', port=80): Max retries exceeded ",,
+Invesco Mutual Fund,https://invescomutualfund.com/literature-and-form?tab=Complete,0,0,no file links on page (script-rendered site),,
+ITI Mutual Fund,https://www.itiamc.com/statuory-disclosure,0,0,no file links on page (script-rendered site),,
+Jio BlackRock Mutual Fund,https://www.jioblackrockamc.com/statutory-disclosure/disclosures/monthly-portfolio-disclosure,0,0,no file links on page (script-rendered site),,
+JM Financial Mutual Fund,https://www.jmfinancialmf.com/downloads/Portfolio-Disclosure,0,0,no file links on page (script-rendered site),,
+Kotak Mahindra Mutual Fund,https://www.kotakmf.com/Information/forms-and-downloads,0,0,no file links on page (script-rendered site),,
+LIC Mutual Fund,https://www.licmf.com/downloads/monthly-portfolio,2,1,ok,,
+Mahindra Manulife Mutual Fund,https://www.mahindramanulife.com/downloads#mandatory-disclosures,0,0,no file links on page (script-rendered site),,
+Mirae Asset Mutual Fund,https://www.miraeassetmf.co.in/downloads/portfolio,0,0,no file links on page (script-rendered site),,
+Monarch Mutual Fund,https://www.monarchamc.in/forms-downloads/portfolio-holdings/monthly,2,1,ok,1.0,1.0
+Motilal Oswal Mutual Fund,https://www.motilaloswalmf.com/downloads/scheme-portfolio-details,0,0,no file links on page (script-rendered site),,
+Navi Mutual Fund,https://navi.com/mutual-fund/downloads/portfolio,0,0,page error: 403 Client Error: Forbidden for url: https://navi.com/mutual-fund/downloads/port,,
+Nippon India Mutual Fund,https://mf.nipponindiaim.com/investor-service/downloads/factsheet-portfolio-and-other-disclosures,353,0,no matching file links (site may load links by script),,
+NJ Mutual Fund,https://downloads.njmutualfund.com/njmf_download.php?nme=127,125,15,ok,5.0,0.0
+Old Bridge Mutual Fund,https://oldbridgemf.com/statutory-disclosures.html,1232,10,ok,4.0,3.0
+PGIM India Mutual Fund,https://www.pgimindia.com/mutual-funds/disclosures/Portfolios/Monthly-Portfolio,0,0,no file links on page (script-rendered site),,
+PPFAS Mutual Fund,https://amc.ppfas.com/downloads/portfolio-disclosure/,431,37,ok,19.0,2.0
+quant Mutual Fund,https://quantmutual.com/statutory-disclosures,11,0,no matching file links (site may load links by script),,
+Quantum Mutual Fund,https://www.quantumamc.com/portfolio/combined/-1/1/0/0,20,0,no matching file links (site may load links by script),,
+Samco Mutual Fund,https://www.samcomf.com/StatutoryDisclosure,4760,44,ok,21.0,12.0
+SBI Mutual Fund,https://www.sbimf.com/portfolios,0,0,no file links on page (script-rendered site),,
+Shriram Mutual Fund,https://www.shriramamc.in/investor-statutory-disclosures,43,2,ok,,
+Sundaram Mutual Fund,https://www.sundarammutual.com/Monthly-Fortnightly-Adhoc-Portfolios,1,0,no matching file links (site may load links by script),,
+Tata Mutual Fund,https://www.tatamutualfund.com/schemes-related,2,0,no matching file links (site may load links by script),,
+Taurus Mutual Fund,https://taurusmutualfund.com/monthly-portfolio,0,0,no file links on page (script-rendered site),,
+Trust Mutual Fund,https://www.trustmf.com/disclosures?activeTab=portfolio-disclosures,0,0,no file links on page (script-rendered site),,
+Unifi Mutual Fund,https://unifimf.com/statutorydocuments/#monthly-portfolio-disclosure,225,5,ok,,
+Union Mutual Fund,https://www.unionmf.com/about-us/downloads/monthly-portfolio,0,0,"page error: HTTPSConnectionPool(host='www.unionmf.com', port=443): Max retries exceeded with",,
+UTI Mutual Fund,https://www.utimf.com/downloads/consolidate-all-portfolio-disclosure,0,0,no file links on page (script-rendered site),,
+The Wealth Company Mutual Fund,https://www.wealthcompanyamc.in/literature-forms/portfolio-documents/monthly/,0,0,no file links on page (script-rendered site),,
+WhiteOak Capital Mutual Fund,https://mf.whiteoakamc.com/regulatory-disclosures/scheme-portfolios,0,0,page error: 403 Client Error: Forbidden for url: https://mf.whiteoakamc.com/regulatory-discl,,
+Zerodha CASE Mutual Fund,https://www.zerodhafundhouse.com/resources/disclosures?source=footer,314,13,ok,124.0,10.0
