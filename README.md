@@ -1,75 +1,61 @@
-# MF Data Repository (SEBI categories, official data)
+# mf-data — Indian mutual fund data store & analytics
 
-Refreshes every 15 days and publishes ready-made fund metrics so portfolio reviews need only the client CAS.
+A GitHub Actions job refreshes everything on the 2nd and 16th of each month (03:00 IST), or on demand
+(Actions → Refresh MF data → Run workflow). The repo is a **data store**; every ratio for any period is
+computed from it by `mfrepo/analytics.py`, so new measures never require changing the data pipeline.
 
-**Sources (official only):** AMFI (scheme master with SEBI category, daily NAV history), NSE Indices (benchmark TRI).
-**Not used:** Morningstar or any rating site.
+## What is stored (`data/`)
 
----
-
-## 1. One-time setup on GitHub (about 10 minutes, no PC needed afterwards)
-
-1. Create a free GitHub account (or use the firm's).
-2. Click **New repository** and name it, e.g. `mf-data`.
-   - Make it **Public**. Claude can read public file links only. It holds only public AMFI/NSE data and **no client data**.
-3. Click **Add file → Upload files**, then drag in everything from this folder (keep the folder structure, including `.github/workflows/refresh.yml`).
-4. Go to **Settings → Actions → General → Workflow permissions** and choose **Read and write permissions**. Save.
-5. Go to the **Actions** tab, open **Refresh MF data**, then click **Run workflow** for the first build.
-   - The first run downloads 6 years of history and takes roughly 30–60 minutes. Later runs are quicker.
-6. When it finishes, the `data/` folder contains the CSV files. Send Claude this link:
-   `https://raw.githubusercontent.com/<your-user>/<repo>/main/data/`
-
-After that it runs by itself at 03:00 IST on the 2nd and 16th of each month. You can also press **Run workflow** for an ad-hoc refresh.
-
-### Alternative: run on your own PC
-
-```
-pip install -r requirements.txt
-python -m mfrepo.build
-```
-Outputs go to `data/`. For Claude to read them, push to GitHub the same way.
-
----
-
-## 2. Output files (`data/`)
-
-| File | What it holds |
+| File | Content |
 |---|---|
-| `fund_metrics.csv` | **Main file.** One row per open-ended Growth scheme (Regular and Direct): SEBI category, peer group, benchmark, YTD/1Y/3Y/5Y returns, 3Y rolling average, Std Dev, Sharpe, Beta, Alpha, Up/Down capture, Capture ratio, benchmark returns, excess returns, rank/percentile/quartile (3Y and 3Y rolling), and category averages |
-| `category_stats.csv` | Peer-group averages of every metric plus the number of schemes |
-| `scheme_master.csv` | All open-ended schemes (all plans/options), with ISINs, used to match CAS ISINs |
-| `benchmark_tri.csv` | Daily TRI of each benchmark, used for "same cash flows in benchmark" returns |
-| `nav_month_end.csv.gz` | Month-end NAVs of all Growth schemes |
-| `run_info.json` | As-of date, run time, methods used |
+| `nav/nav_YYYY.parquet` | Daily NAV of every scheme from 2010 (MF from AMFI via mfapi.in, AMFI fallback; SIF from AMFI) |
+| `scheme_master.csv` | Every scheme: AMC, SEBI category, plan, option, ISINs, peer group, benchmark, `nav_source_code` (IDCW → Growth sibling), TER |
+| `benchmark_tri.csv.gz` | Daily benchmark levels: official NSE TRI (2010+) extended by index funds; composites for debt/hybrid; gold/silver |
+| `benchmark_sources.csv` | How each benchmark series was built (audit) |
+| `index_price.csv.gz` | NSE price indices (daily file, 2012+) |
+| `category_index.parquet` | Daily equal-weighted index of each peer group (category average path) |
+| `fund_metrics.parquet` / `.csv.gz` | Ready snapshot: trailing & calendar returns, risk / relative / category measures for 1, 3, 5, 7, 10 years, rolling stats, peer ranks. See `COLUMNS.md` |
+| `category_stats.parquet` / `.csv` | Category average & median of every measure |
+| `ter.csv` | Latest TER (total, base, brokerage, transaction, statutory) from AMFI |
+| `holdings/holdings_YYYY-MM.parquet` | Security-level portfolios from AMC monthly disclosures |
+| `holdings_summary.csv` | Per scheme: equity gross/net, debt, cash, large/mid/small, YTM, AAA+SOV %, credit mix, top-10 weight |
+| `holdings_coverage.csv` | Which AMCs were downloaded / parsed / matched this month |
+| `mcap_classification.csv` | AMFI large / mid / small cap list |
+| `run_info.json` | As-of date, counts, status of each step |
 
-## 3. Methods
+## Analytics for any period
 
-- **Peer group:** SEBI category × plan (Regular/Direct), Growth option only. Index funds and ETFs are grouped by the index they track.
-- **Returns:** point-to-point NAV; CAGR for periods over 1 year; YTD from the last NAV of the previous year.
-- **3Y rolling:** average of daily 3-year CAGRs with windows inside the last 5 years. Requires a 5-year record (the template rule).
-- **Risk (36 monthly returns):**
-  - Std Dev is annualised.
-  - Sharpe = (annual return − risk-free) ÷ Std Dev, using `RF_RATE` in `mfrepo/config.py` (default 6.5%).
-  - Beta and Jensen's alpha are measured against the benchmark TRI.
-  - Capture uses geometric up-month and down-month returns. Capture ratio = up ÷ down; NA if the fund rose in down months.
-- **Rank:** 1 = best. Quartile Q1 = top 25%. Shown only if the peer group has at least 4 schemes (`MIN_PEERS`).
-- **Category average:** simple average of the peer group.
+```python
+from mfrepo.analytics import Repo, metrics, compare, rolling_returns, mirror_xirr, xirr, sip_returns
+r = Repo("path/to/mf-data")
+nav, bm, cat = r.nav(118668), r.benchmark_of(118668), r.category_of(118668)
+metrics(nav, "2019-04-01", "2024-03-31", bm=bm, cat=cat)        # ~140 measures for that exact window
+metrics(nav, "3Y", freq="D")                                     # last 3 years on daily returns
+compare([118668, 120505, 119551], "5Y", r=r, with_peers=True)   # side by side + rank within category
+rolling_returns(nav, "3Y", "2015-01-01", bm=bm)                  # rolling series + % beating benchmark
+mirror_xirr(client_cashflows, bm, "2026-11-17")                  # benchmark XIRR on the client's cash flows
+```
 
-## 4. Things you may edit
+Measures: point-to-point / CAGR, trailing (1M…10Y, SI), calendar & financial-year returns, rolling
+returns (avg, median, min, max, % positive, % above thresholds, % beating benchmark), SIP returns,
+XIRR, benchmark / category XIRR on the same cash flows, annualised return, standard deviation, downside
+deviation, Sharpe, Sortino, Calmar, Omega, Treynor, M², max drawdown (with dates, recovery, longest
+under water), Ulcer index, VaR / CVaR, skewness, kurtosis, beta, Jensen's alpha, R², correlation,
+tracking error, information ratio, up / down capture (geometric & arithmetic), capture ratio, batting
+averages, excess return — each against the benchmark and against the category index; ranks, percentiles
+and quartiles within the peer group. Holdings: allocation, net equity, market-cap split, YTM, AAA+SOV,
+credit mix, concentration, overlap between any two schemes.
 
-- `config/benchmark_map.csv`: benchmark index per SEBI category (matched on text in the category name).
-- `config/scheme_benchmark_overrides.csv`: per-scheme benchmark (e.g. a scheme whose SID benchmark differs).
-- `mfrepo/config.py`: risk-free rate, look-back years, minimum peers.
-- `manual/tri/<INDEX NAME>.csv`: if NSE Indices blocks a download, drop a CSV with columns `Date,TRI` here (e.g. `manual/tri/NIFTY 50.csv`).
+## Configuration (edit on GitHub, no code changes)
 
-## 5. Known limits (v1)
-
-- **Hybrid benchmarks (CRISIL indices), global indices (S&P 500, MSCI) and gold/silver prices** are not on NSE Indices. These schemes get returns, Std Dev, Sharpe and peer ranks, but no benchmark-based alpha, beta or capture unless a manual TRI file is added.
-- **Plan and option** are detected from scheme names (Direct, IDCW, Growth). Spot-check unusual names.
-- **AMC portfolio holdings** (look-through, overlap, YTM, duration) and **expense ratios** are planned for v2.
-- **The GitHub cache of daily history is cleared after 7 days unused,** so each fortnightly run may re-download the full history. This is slower but harmless.
-- **NSE Indices endpoint:** the site's data endpoint is not an official API and may change. Failures are logged in the run, and the rest of the build still completes.
-
-## 6. Test
-
-`python -m tests.test_pipeline` runs the whole pipeline on synthetic data and checks the calculations.
+| File | Purpose |
+|---|---|
+| `mfrepo/config.py` | Risk-free rate, history start, snapshot windows, feature switches |
+| `config/benchmark_map.csv` | SEBI category → benchmark |
+| `config/theme_map.csv` | Sectoral / thematic fund → theme → benchmark |
+| `config/composite_benchmarks.csv` | Debt / hybrid composite benchmarks |
+| `config/scheme_benchmark_overrides.csv` | Benchmark for a specific AMFI code |
+| `config/amc_portfolio_sources.csv` | AMC portfolio disclosure pages (from AMFI) |
+| `manual/official_*.csv` | Official NSE index history (one-time) |
+| `manual/portfolios/` | Drop any AMC portfolio Excel/ZIP here; it is parsed on the next run |
+| `manual/mcap/` | AMFI market-cap list if the automatic download fails |

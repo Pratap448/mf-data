@@ -1,14 +1,16 @@
-"""Refresh the repository: download AMFI + NSE Indices data, compute metrics, write data/*.csv.
+"""Refresh the repository: AMFI (master, NAV, TER, SIF), NSE (benchmarks), AMC portfolios -> data/.
 
-Run:  python -m mfrepo.build            (full refresh / incremental if cache exists)
-      python -m mfrepo.build --offline  (recompute metrics from cache only)
+Run:  python -m mfrepo.build            full refresh
+      python -m mfrepo.build --offline  recompute every derived file from data/ only (no downloads)
+
+The repo is a data store. Daily NAVs (data/nav/), benchmark and category index series let
+mfrepo.analytics compute ANY measure for ANY period on demand; data/fund_metrics.* is a ready-made
+snapshot of the standard measures (see data/COLUMNS.md).
 """
-import sys, json, re, datetime as dt
+import sys, json, re, os, datetime as dt
+from concurrent.futures import ProcessPoolExecutor
 import numpy as np, pandas as pd
-from . import config as C, amfi, indices, metrics as M, benchmarks as B, nse_prices
-
-METRIC_COLS = ["ret_ytd", "ret_1y", "ret_3y", "ret_5y", "roll3y_avg", "sd_3y", "sharpe_3y", "beta_3y",
-               "alpha_3y", "up_capture", "down_capture", "capture_ratio"]
+from . import config as C, amfi, indices, benchmarks as B, nse_prices, analytics as A
 
 
 def log(*a):
@@ -126,148 +128,341 @@ def refresh_navs(master, today):
     return navs
 
 
-def refresh_tri(names, today):
-    cache = load_cache("tri")
-    have = set(cache["index"]) if cache is not None and len(cache) else set()
-    full_start = pd.Timestamp(C.HISTORY_START).date()
-    parts = []
-    for n in names:
-        if n in have and indices.manual(n) is None:
-            last = cache[cache["index"] == n].date.max()
-            parts.append(indices.tri_history([n], (last - pd.Timedelta(days=10)).date(), today.date(), log))
-        else:
-            parts.append(indices.tri_history([n], full_start, today.date(), log))
-    tri = pd.concat([cache] + parts if cache is not None else parts, ignore_index=True)
-    tri = tri.drop_duplicates(["index", "date"], keep="last").sort_values(["index", "date"])
-    save_cache(tri, "tri")
-    return tri
+
+
+# ================================================================================================ NAV store
+def nav_store_write(navs):
+    """data/nav/nav_YYYY.parquet — one file per year; a year is rewritten only if its data changed."""
+    d = C.OUT / "nav"
+    d.mkdir(parents=True, exist_ok=True)
+    navs = navs.copy()
+    navs["amfi_code"] = navs["amfi_code"].astype("int64")
+    navs["date"] = pd.to_datetime(navs["date"])
+    navs["nav"] = navs["nav"].astype("float64").round(6)
+    changed = 0
+    for y, g in navs.groupby(navs["date"].dt.year):
+        g = g.sort_values(["amfi_code", "date"]).reset_index(drop=True)
+        f = d / f"nav_{y}.parquet"
+        if f.exists():
+            old = pd.read_parquet(f)
+            old["date"] = pd.to_datetime(old["date"])
+            if len(old) == len(g) and old.sort_values(["amfi_code", "date"]).reset_index(drop=True).equals(g):
+                continue
+        g.to_parquet(f, index=False, compression="zstd")
+        changed += 1
+    log(f"  NAV store: {navs.amfi_code.nunique():,} schemes, {len(navs):,} rows, {changed} year file(s) updated")
+
+
+def nav_store_read():
+    files = sorted((C.OUT / "nav").glob("nav_*.parquet"))
+    if not files:
+        return None
+    n = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    n["date"] = pd.to_datetime(n["date"])
+    return n
+
+
+# ================================================================================================ category index
+def category_index(master, series, asof):
+    """Equal-weighted daily index of each peer group's Growth options (official-category average path).
+    Daily moves beyond +/-20% are treated as data errors and ignored."""
+    rows = []
+    g = master[(master.option == "Growth") & master.amfi_code.isin(series.keys())]
+    for pg, mem in g.groupby("peer_group"):
+        rets = []
+        for c in mem.amfi_code:
+            s = series[c]
+            r = s.pct_change()
+            r = r[(r.abs() < 0.20)]
+            rets.append(r.rename(c))
+        if not rets:
+            continue
+        mat = pd.concat(rets, axis=1)
+        avg = mat.mean(axis=1, skipna=True).dropna()
+        cnt = mat.notna().sum(axis=1).reindex(avg.index)
+        lvl = 1000 * (1 + avg).cumprod()
+        rows.append(pd.DataFrame({"peer_group": pg, "date": lvl.index, "level": lvl.values, "members": cnt.values}))
+    out = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame(columns=["peer_group", "date", "level", "members"])
+    out.to_parquet(C.OUT / "category_index.parquet", index=False, compression="zstd")
+    log(f"  category index: {out.peer_group.nunique():,} peer groups")
+    return {k: v.set_index("date").level for k, v in out.groupby("peer_group")}
+
+
+# ================================================================================================ snapshot
+_G = {}
+
+
+def _snap(code):
+    s = _G["series"].get(code)
+    if s is None or len(s) < 2:
+        return None
+    asof, risk_end = _G["asof"], _G["risk_end"]
+    if (asof - s.index[-1]).days > C.STALE_DAYS:
+        return None
+    meta = _G["meta"].get(code, {})
+    bm = _G["bm"].get(meta.get("benchmark_index"))
+    cat = _G["cat"].get(meta.get("peer_group"))
+    out = {"amfi_code": code, "first_nav_date": s.index[0].date(), "last_nav_date": s.index[-1].date(),
+           "last_nav": float(s.iloc[-1])}
+    out.update(A.trailing_returns(s, asof))
+    for y, v in A.calendar_returns(s, range(asof.year - C.CALENDAR_YEARS, asof.year)).items():
+        out[f"cy_{y}"] = v
+    for w in C.SNAPSHOT_WINDOWS:
+        st = risk_end - pd.DateOffset(years=w)
+        if not A.covers(s, st):
+            continue
+        sfx = f"_{w}y"
+        rm = A.risk_measures(s, st, risk_end, C.RISK_FREQ)
+        out.update({k + sfx: v for k, v in rm.items() if not k.startswith("dd_") or k in
+                    ("dd_days_to_recover",)})
+        if bm is not None and len(bm) and A.covers(bm, st):
+            out.update({k + sfx: v for k, v in A.relative_measures(s, bm, st, risk_end, C.RISK_FREQ).items()})
+        if cat is not None and len(cat) and A.covers(cat, st):
+            out.update({k + sfx: v for k, v in
+                        A.relative_measures(s, cat, st, risk_end, C.RISK_FREQ, prefix="cat_").items()})
+    lb = asof - pd.DateOffset(years=C.ROLLING_LOOKBACK_YEARS)
+    for w in C.ROLLING_WINDOWS:
+        _, st = A.rolling_returns(s, w, lb, asof, "W", bm if bm is not None and len(bm) else None)
+        out.update({f"{k}_{w.lower()}": v for k, v in st.items()})
+    return out
+
+
+RANK_COLS_BASE = ["ret_1m", "ret_3m", "ret_6m", "ret_ytd", "ret_1y", "ret_2y", "ret_3y", "ret_5y", "ret_7y", "ret_10y"]
+RANK_COLS_WIN = ["ann_return", "std_dev", "downside_dev", "sharpe", "sortino", "calmar", "max_drawdown", "alpha",
+                 "information_ratio", "capture_ratio", "up_capture", "down_capture", "batting_avg", "excess_return"]
+
+
+def snapshot(master, series, bm, cat, asof):
+    risk_end = (asof + pd.offsets.MonthEnd(0)) if asof.is_month_end else (asof - pd.offsets.MonthEnd(1))
+    meta = master.set_index("amfi_code")[["benchmark_index", "peer_group"]].to_dict("index")
+    codes = [c for c in master.amfi_code if c in series]
+    _G.update(series=series, bm=bm, cat=cat, meta=meta, asof=asof, risk_end=risk_end)
+    workers = max(1, min(4, (os.cpu_count() or 2)))
+    rows = []
+    try:
+        with ProcessPoolExecutor(workers) as ex:
+            for r in ex.map(_snap, codes, chunksize=50):
+                if r:
+                    rows.append(r)
+    except Exception as e:   # no fork available -> single process
+        log(f"  parallel snapshot unavailable ({e}); running single-process")
+        rows = [r for r in map(_snap, codes) if r]
+    fm = pd.DataFrame(rows)
+    log(f"  snapshot: {len(fm):,} schemes, {fm.shape[1]:,} columns, risk window end {risk_end.date()}")
+    return fm, risk_end
+
+
+def bench_trailing(bm, asof):
+    rows = []
+    for n, s in bm.items():
+        d = {"benchmark_index": n}
+        d.update({f"bm_{k}": v for k, v in A.trailing_returns(s, asof).items()})
+        rows.append(d)
+    return pd.DataFrame(rows)
+
+
+def cat_trailing(cat, asof):
+    rows = []
+    for n, s in cat.items():
+        d = {"peer_group": n}
+        d.update({f"catidx_{k}": v for k, v in A.trailing_returns(s, asof).items()})
+        rows.append(d)
+    return pd.DataFrame(rows)
+
+
+# ================================================================================================ main
+def write_columns_doc(fm):
+    lines = ["# fund_metrics columns", "",
+             "Suffix `_Ny` = measured over the last N years to the last month-end (monthly returns unless config says otherwise).",
+             "Prefix `cat_` = measured against the category-average index instead of the benchmark.",
+             "`_rank/_of/_pctile/_quartile` = position within the peer group (Growth options only; 1 = best).",
+             "", "| column | meaning |", "|---|---|"]
+    desc = {"ret_": "trailing point-to-point return %, CAGR above 1 year", "cy_": "calendar-year return %",
+            "ann_return": "annualised return %", "std_dev": "annualised standard deviation %",
+            "downside_dev": "annualised downside deviation % (below risk-free)", "sharpe": "Sharpe ratio",
+            "sortino": "Sortino ratio", "calmar": "annualised return / max drawdown", "max_drawdown": "max drawdown % (daily)",
+            "ulcer_index": "Ulcer index", "longest_underwater_days": "longest period below a previous peak (days)",
+            "current_drawdown": "drawdown from peak at window end %", "var_95": "95% value-at-risk per period %",
+            "cvar_95": "95% expected shortfall per period %", "omega": "Omega ratio", "skewness": "skewness",
+            "kurtosis": "excess kurtosis", "beta": "beta", "alpha": "Jensen's alpha % p.a.", "r_squared": "R-squared %",
+            "correlation": "correlation", "tracking_error": "tracking error % p.a.", "information_ratio": "information ratio",
+            "treynor": "Treynor ratio %", "m2": "Modigliani M-squared %", "up_capture": "up-market capture % (geometric)",
+            "down_capture": "down-market capture % (geometric)", "capture_ratio": "up capture / down capture",
+            "batting_avg": "% of periods beating the benchmark", "excess_return": "annualised return minus benchmark's",
+            "active_return": "same as excess_return", "roll_": "rolling-return statistics over the last 10 years",
+            "bm_": "benchmark value of the same measure", "catidx_": "category-average index trailing return",
+            "cat_avg_": "simple average of peers", "cat_median_": "median of peers", "ter_": "expense ratio %"}
+    for c in fm.columns:
+        d = next((v for k, v in desc.items() if c.startswith(k) or c.replace("cat_", "", 1).startswith(k)), "")
+        lines.append(f"| {c} | {d} |")
+    (C.OUT / "COLUMNS.md").write_text("\n".join(lines))
 
 
 def main(offline=False):
     today = pd.Timestamp(dt.date.today())
     C.OUT.mkdir(exist_ok=True)
+    C.CACHE.mkdir(exist_ok=True)
+    status = {}
+
+    # ---------- master
     if offline:
-        master = pd.read_csv(C.OUT / "scheme_master.csv", parse_dates=["nav_date"])
-        navs, tri = load_cache("navs"), load_cache("tri")
+        master_all = pd.read_csv(C.OUT / "scheme_master.csv", low_memory=False)
     else:
         log("Downloading AMFI scheme master…")
         master_all = amfi.scheme_master()
-        master_all["benchmark_index"] = bench_map(master_all)
-        master_all.to_csv(C.OUT / "scheme_master.csv", index=False)
-        master = master_all
-    full_master = master.copy()
-    sib = sibling_map(full_master)
-    # NAVs needed: every Growth option + any other option with no Growth sibling
-    master = full_master[(full_master.option == "Growth") | (~full_master.amfi_code.isin(sib))].copy()
-    log(f"Schemes: {len(full_master):,} total | {int((full_master.option == 'Growth').sum()):,} Growth | "
-        f"{len(sib):,} IDCW/other mapped to Growth sibling | "
-        f"{int(((full_master.option != 'Growth') & ~full_master.amfi_code.isin(sib)).sum()):,} without sibling (own NAV)")
-    if not offline:
-        navs = refresh_navs(master, today)
+        master_all = amfi.official_plan_option(master_all, log)
+        if C.INCLUDE_SIF:
+            try:
+                sif_m, sif_n = amfi.sif_data(log)
+                status["sif"] = f"{len(sif_m)} lines"
+            except Exception as e:
+                sif_m, sif_n = pd.DataFrame(), pd.DataFrame()
+                status["sif"] = f"failed: {e}"
+                log(f"  SIF failed: {e}")
+            master_all = pd.concat([master_all, sif_m], ignore_index=True) if len(sif_m) else master_all
+    master_all["benchmark_index"] = bench_map(master_all)
+    master_all["peer_group"] = master_all.apply(peer_key, axis=1)
+    sib = sibling_map(master_all)
+    master_all["nav_source_code"] = master_all.amfi_code.map(sib).fillna(master_all.amfi_code).astype("int64")
+    need = master_all[(master_all.option == "Growth") | (~master_all.amfi_code.isin(sib))]
+    log(f"Schemes: {len(master_all):,} | NAV histories needed: {len(need):,} (others use their Growth sibling)")
+
+    # ---------- NAVs
+    if offline:
+        navs = nav_store_read()
+    else:
+        mf = need[need.amfi_code < amfi.SIF_CODE_BASE]
+        navs = refresh_navs(mf, today)
+        got = set(navs.amfi_code.unique())
+        missing = [c for c in mf.amfi_code if c not in got]
+        if missing:
+            fb = amfi.nav_fallback(missing[:400], C.HISTORY_START, today.date().isoformat(), log)
+            navs = pd.concat([navs, fb], ignore_index=True)
+        if C.INCLUDE_SIF and len(sif_n):
+            navs = pd.concat([navs, sif_n], ignore_index=True)
+        navs = navs.drop_duplicates(["amfi_code", "date"], keep="last")
+        nav_store_write(navs)
     if navs is None or not len(navs):
-        raise RuntimeError("No NAV history available, so nothing to compute. Check the NAV/DIAG lines above.")
+        raise RuntimeError("No NAV history available.")
     asof = navs.date.max()
+    series = {c: A.clean(pd.Series(g.nav.to_numpy(), index=g.date.to_numpy())) for c, g in navs.groupby("amfi_code")}
+    log(f"As-of {asof.date()} | schemes with NAVs {len(series):,}")
+
+    # ---------- benchmarks
     if not offline:
         log("Building benchmark series…")
-        names = sorted({n for v in master.benchmark_index.dropna() for n in str(v).split("|")} | {"NIFTY 50", "NIFTY 500"})
-        tri, srcs = B.build(names, master, navs, asof, log)
-        save_cache(tri, "tri")
+        names = sorted({n for v in need.benchmark_index.dropna() for n in str(v).split("|")} | {"NIFTY 50", "NIFTY 500"})
+        tri, srcs = B.build(names, need, navs, asof, log)
         srcs.to_csv(C.OUT / "benchmark_sources.csv", index=False)
+        tri[tri.date >= pd.Timestamp(C.HISTORY_START)].sort_values(["index", "date"]).round({"tri": 4}).to_csv(
+            C.OUT / "benchmark_tri.csv.gz", index=False, compression="gzip")
         try:
-            log("Updating NSE equity index prices…")
             nse_prices.update(log)
-        except Exception as e:  # price history is informational; never fail the run on it
-            log(f"  WARNING: NSE index price update failed: {e}")
-    log(f"As-of date: {asof.date()}  | schemes with NAVs: {navs.amfi_code.nunique():,}")
-
-    tri_s = {n: g.set_index("date").tri.sort_index() for n, g in tri.groupby("index")} if len(tri) else {}
+        except Exception as e:
+            log(f"  WARNING: NSE price update failed: {e}")
+    else:
+        tri = pd.read_csv(C.OUT / "benchmark_tri.csv.gz", parse_dates=["date"])
+    bm = {n: A.clean(g.set_index("date").tri) for n, g in tri.groupby("index")}
 
     def resolve(v):
         if not isinstance(v, str) or "|" not in v:
             return v
         c = v.split("|")
-        return next((x for x in c if x in tri_s), c[0])
-    master["benchmark_index"] = master.benchmark_index.map(resolve)
-    full_master["benchmark_index"] = full_master.benchmark_index.map(resolve)
-    if not offline:
-        full_master.to_csv(C.OUT / "scheme_master.csv", index=False)
-    bench_rows = []
-    for n, s in tri_s.items():
-        bench_rows.append({"benchmark_index": n, **{f"bm_{k}": v for k, v in M.period_returns(s, asof).items()},
-                           "bm_roll3y_avg": M.rolling_avg(s, asof)})
-    bench = pd.DataFrame(bench_rows)
+        return next((x for x in c if x in bm), c[0])
+    master_all["benchmark_index"] = master_all.benchmark_index.map(resolve)
 
-    rows, series = [], {}
-    for code, g in navs.groupby("amfi_code"):
-        s = g.set_index("date").nav.sort_index()
-        s = s[~s.index.duplicated(keep="last")]
-        series[code] = s
-        if s.index[-1] < asof - pd.Timedelta(days=10):
-            continue  # stale / wound-up scheme
-        rows.append({"amfi_code": code, "first_nav_date": s.index[0].date(), "last_nav_date": s.index[-1].date(),
-                     **M.period_returns(s, asof), "roll3y_avg": M.rolling_avg(s, asof)})
-    fm = master.merge(pd.DataFrame(rows), on="amfi_code", how="inner")
+    # ---------- category index
+    cat = category_index(master_all[master_all.amfi_code.isin(series.keys())], series, asof)
 
-    risk = []
-    for r in fm.itertuples():
-        risk.append({"amfi_code": r.amfi_code, **M.risk_stats(series[r.amfi_code], tri_s.get(r.benchmark_index), asof)})
-    fm = fm.merge(pd.DataFrame(risk), on="amfi_code", how="left")
-    if len(bench):
-        fm = fm.merge(bench, on="benchmark_index", how="left")
-        for k in ["ytd", "1y", "3y", "5y"]:
-            fm[f"excess_{k}"] = fm[f"ret_{k}"] - fm[f"bm_ret_{k}"]
+    # ---------- TER
+    if not offline and C.FETCH_TER:
+        try:
+            ter = amfi.ter_latest(log)
+        except Exception as e:
+            log(f"  TER failed: {e}")
+            ter = pd.DataFrame()
+    else:
+        f = C.OUT / "ter.csv"
+        ter = pd.read_csv(f) if f.exists() else pd.DataFrame()
+    master_all = amfi.attach_ter(master_all, ter)
+    master_all.to_csv(C.OUT / "scheme_master.csv", index=False)
 
-    fm["peer_group"] = fm.apply(peer_key, axis=1)
+    # ---------- snapshot of standard measures
+    calc = master_all[master_all.amfi_code.isin(series.keys())]
+    fm, risk_end = snapshot(calc, series, bm, cat, asof)
+    base_cols = ["amfi_code", "scheme_name", "amc", "scheme_type", "sebi_category", "category_group", "plan", "option",
+                 "peer_group", "benchmark_index", "isin_growth", "isin_reinv"] + \
+                [c for c in master_all.columns if c.startswith("ter_")]
+    fm = master_all[[c for c in base_cols if c in master_all.columns]].merge(fm, on="amfi_code", how="inner")
     fm["metrics_basis"] = np.where(fm.option == "IDCW/Other",
                                    "own NAV (IDCW option, no Growth sibling: payouts not added back)", "own NAV")
-    g = fm[fm.option == "Growth"]  # peers = Growth options only, so one fund isn't counted twice
-    for col, tag in [("ret_3y", "3y"), ("roll3y_avg", "roll3y")]:
-        rk = g.groupby("peer_group", group_keys=False)[col].apply(M.rank_quartile)
-        rk.columns = [f"{c}_{tag}" for c in rk.columns]
-        fm = fm.join(rk)
+    # IDCW / Bonus options take their Growth sibling's measures
+    sibs = master_all[master_all.amfi_code.isin(sib.keys())]
+    if len(sibs):
+        src = fm.set_index("amfi_code")
+        mcols = [c for c in fm.columns if c not in base_cols]
+        add = sibs[[c for c in base_cols if c in sibs.columns]].copy()
+        add["src"] = add.amfi_code.map(sib)
+        add = add[add.src.isin(src.index)]
+        vals = src.loc[add.src, mcols].reset_index(drop=True)
+        add = pd.concat([add.reset_index(drop=True), vals], axis=1)
+        add["metrics_basis"] = "Growth option " + add.src.astype(str) + " (same fund & plan)"
+        fm = pd.concat([fm, add.drop(columns="src")], ignore_index=True)
+    fm = fm.merge(bench_trailing(bm, asof), on="benchmark_index", how="left")
+    fm = fm.merge(cat_trailing(cat, asof), on="peer_group", how="left")
 
-    cat = g.groupby("peer_group")[METRIC_COLS].mean().add_prefix("cat_avg_")
-    cat["schemes"] = g.groupby("peer_group").size()
-    cat = cat.reset_index()
-    fm = fm.merge(cat.drop(columns="schemes"), on="peer_group", how="left")
-    # IDCW / Bonus options: same fund & plan as a Growth option -> carry the Growth option's metrics
-    sib_rows = full_master[full_master.amfi_code.isin(sib)].copy()
-    if len(sib_rows):
-        gm = fm.set_index("amfi_code")
-        cols = [c for c in fm.columns if c not in full_master.columns]
-        src = sib_rows.amfi_code.map(sib)
-        ok = src.isin(gm.index)
-        add = sib_rows[ok].reset_index(drop=True)
-        vals = gm.loc[src[ok].values, cols].reset_index(drop=True)
-        add = pd.concat([add, vals], axis=1)
-        add["metrics_basis"] = "Growth option " + src[ok].astype(int).astype(str).values + " (same fund & plan)"
-        fm = pd.concat([fm, add], ignore_index=True)
+    # ---------- peer ranks and category stats (Growth options only)
+    g = fm[(fm.option == "Growth") & (fm.metrics_basis == "own NAV")]
+    rank_cols = [c for c in RANK_COLS_BASE if c in fm] + \
+                [f"{m}_{w}y" for w in C.SNAPSHOT_WINDOWS for m in RANK_COLS_WIN if f"{m}_{w}y" in fm] + \
+                [f"roll_avg_{w.lower()}" for w in C.ROLLING_WINDOWS if f"roll_avg_{w.lower()}" in fm]
+    ranked = A.rank_table(g[["amfi_code", "peer_group"] + rank_cols], rank_cols, "peer_group", C.MIN_PEERS)
+    rcols = [c for c in ranked.columns if c.endswith(("_rank", "_of", "_pctile", "_quartile"))]
+    rk = ranked.set_index("amfi_code")[rcols]
+    src_code = fm.amfi_code.where(fm.metrics_basis.str.startswith("own NAV"),
+                                  fm.metrics_basis.str.extract(r"Growth option (\d+)")[0].astype(float))
+    fm = pd.concat([fm.reset_index(drop=True), rk.reindex(src_code.astype("Int64")).reset_index(drop=True)], axis=1)
+    num = [c for c in g.columns if c not in base_cols and pd.api.types.is_numeric_dtype(g[c])
+           and not c.startswith(("bm_", "catidx_")) and c not in ("last_nav",)]
+    stats = pd.concat([g.groupby("peer_group")[num].mean().add_prefix("cat_avg_"),
+                       g.groupby("peer_group")[num].median().add_prefix("cat_median_"),
+                       g.groupby("peer_group").size().rename("peers")], axis=1).reset_index()
+    stats.round(4).to_parquet(C.OUT / "category_stats.parquet", index=False, compression="zstd")
+    key_stats = ["peer_group", "peers"] + [f"cat_avg_{c}" for c in rank_cols if f"cat_avg_{c}" in stats]
+    stats[key_stats].round(4).to_csv(C.OUT / "category_stats.csv", index=False)
+    fm = fm.merge(stats[key_stats], on="peer_group", how="left")
     fm.insert(0, "as_of", asof.date())
-
-    num = fm.select_dtypes("number").columns.difference(["amfi_code", "latest_nav", "rank_3y", "count_3y",
-                                                         "rank_roll3y", "count_roll3y", "quartile_3y", "quartile_roll3y"])
-    fm[num] = fm[num].round(4)
-    fm.to_csv(C.OUT / "fund_metrics.csv", index=False)
-    cat.round(4).assign(as_of=asof.date()).to_csv(C.OUT / "category_stats.csv", index=False)
-
-    if len(tri):
-        tri[tri.date >= pd.Timestamp(C.HISTORY_START)].sort_values(["index", "date"]).round({"tri": 4}).to_csv(
-            C.OUT / "benchmark_tri.csv.gz", index=False, compression="gzip")
-        old = C.OUT / "benchmark_tri.csv"
-        if old.exists():
-            old.unlink()  # replaced by the .gz file
+    fm["risk_window_end"] = risk_end.date()
+    num_all = fm.select_dtypes("number").columns.difference(["amfi_code", "last_nav"])
+    fm[num_all] = fm[num_all].astype("float64").round(4)
+    fm.to_parquet(C.OUT / "fund_metrics.parquet", index=False, compression="zstd")
+    fm.to_csv(C.OUT / "fund_metrics.csv.gz", index=False, compression="gzip")
+    old_csv = C.OUT / "fund_metrics.csv"
+    if old_csv.exists():
+        old_csv.unlink()
+    write_columns_doc(fm)
     me = navs.assign(m=navs.date.dt.to_period("M")).sort_values("date").groupby(["amfi_code", "m"]).last().reset_index()
     me[["amfi_code", "date", "nav"]].to_csv(C.OUT / "nav_month_end.csv.gz", index=False, compression="gzip")
 
-    info = {"as_of": str(asof.date()), "run_at": dt.datetime.now().isoformat(timespec="seconds"),
-            "schemes_in_master": int(len(full_master)), "schemes_with_metrics": int(len(fm)),
-            "benchmarks_loaded": sorted(tri_s), "rf_rate": C.RF_RATE,
-            "method": {"returns": "point-to-point NAV, CAGR for >1Y", "rolling": f"avg daily {C.ROLL_WINDOW_YEARS}Y CAGR, windows inside last {C.ROLL_DATA_YEARS}Y, needs {C.ROLL_DATA_YEARS}Y record",
-                       "risk": f"{C.RISK_MONTHS} monthly returns; Sharpe vs RF; Jensen alpha & beta vs mapped TRI; capture = geometric up/down-month",
-                       "peers": "SEBI category + plan (Regular/Direct), ranked on Growth options; IDCW/Bonus options carry their Growth sibling's metrics; close-ended/interval in own groups; index funds grouped by tracked index",
-                       "category_avg": "simple average of peers"}}
-    (C.OUT / "run_info.json").write_text(json.dumps(info, indent=1))
-    log(json.dumps(info, indent=1))
+    # ---------- holdings
+    if not offline and C.FETCH_HOLDINGS:
+        try:
+            from . import holdings
+            log("AMC portfolios…")
+            holdings.run(master_all, log)
+            status["holdings"] = "ran"
+        except Exception as e:
+            status["holdings"] = f"failed: {e}"
+            log(f"  holdings failed: {e}")
+
+    info = {"as_of": str(asof.date()), "risk_window_end": str(risk_end.date()),
+            "run_at": dt.datetime.now().isoformat(timespec="seconds"),
+            "schemes_in_master": int(len(master_all)), "schemes_with_metrics": int(len(fm)),
+            "nav_histories": len(series), "benchmarks_loaded": len(bm), "category_indices": len(cat),
+            "rf_rate": C.RF_RATE, "risk_freq": C.RISK_FREQ, "status": status,
+            "files": sorted(p.name for p in C.OUT.glob("*") if p.is_file())}
+    (C.OUT / "run_info.json").write_text(json.dumps(info, indent=1, default=str))
+    log(json.dumps(info, indent=1, default=str))
 
 
 if __name__ == "__main__":
