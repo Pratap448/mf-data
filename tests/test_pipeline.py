@@ -116,6 +116,8 @@ def run():
     amfi.nav_fallback = lambda codes, s, e, log=print: pd.DataFrame(columns=["amfi_code", "date", "nav"])
     amfi.sif_data = fake_sif
     amfi.ter_latest = fake_ter
+    amfi.recent_navs = lambda days=7, kind="mf", log=print: pd.DataFrame(
+        {"amfi_code": [100, 101], "date": [str(TODAY), str(TODAY)], "nav": [PATH[100].iloc[-1], PATH[101].iloc[-1]]})
     from mfrepo import nse_prices, holdings
     nse_prices.update = lambda log=print: None
     holdings.download_amc = lambda row, target, s, outdir, log: ({"amc": row.amc, "page": row.page_url,
@@ -124,7 +126,15 @@ def run():
     indices._fetch_year = fake_year
     indices._session = lambda: None
     indices.time.sleep = lambda *_: None
-    build.main()
+    import sys as _sys
+    _sys.argv.append("--full")
+    build.main()                                                  # first run: full history
+    _sys.argv.remove("--full")
+    C.FULL_REFRESH_WEEKDAY = (TODAY.weekday() + 1) % 7            # make today a "daily top-up" day
+    n_before = sum(len(pd.read_parquet(f)) for f in (C.OUT / "nav").glob("*.parquet"))
+    build.main()                                                  # second run: daily incremental
+    n_after = sum(len(pd.read_parquet(f)) for f in (C.OUT / "nav").glob("*.parquet"))
+    assert n_after >= n_before, (n_before, n_after)
     info = json.loads((C.OUT / "run_info.json").read_text())
     assert all(str(v).startswith("ok") for v in info["status"].values()), info["status"]
     fm = pd.read_parquet(C.OUT / "fund_metrics.parquet")
