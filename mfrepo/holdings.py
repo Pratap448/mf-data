@@ -31,22 +31,36 @@ RATING_ORDER = ["SOV", "AAA", "AA+", "AA", "AA-", "A+", "A", "A-", "BBB+", "BBB"
 
 
 # ------------------------------------------------------------------------------------------ download
+NOT_PORTFOLIO = r"overlap|top.?10|top.?ten|replication|dirf|riskometer|factsheet|fact.?sheet|\bter\b|expense|" \
+                r"\bnav\b|debt.?index|fortnight|half.?year|semi.?annual|annual|scheme.?summary|sid|kim|addendum|" \
+                r"notice|dividend|idcw|voting|stewardship|brokerage|commission|aum|riskometer"
+
+
 def _month_score(text, target):
-    """How well a link/file name matches the target month (YYYY-MM)."""
-    t = text.lower()
+    """Score how well a link / file name matches the target month. -1 = wrong month or not a portfolio."""
+    t = text.lower().replace("%20", " ")
     y, m = target.year, target.month
     mon = list(MONTHS)[m - 1]
-    score = 0
-    if str(y) in t or f"{y % 100:02d}" in re.findall(r"\d{2}", t):
-        score += 2
-    if re.search(rf"{mon}[a-z]*", t):
-        score += 3
-    if re.search(rf"(?<!\d){m:02d}(?!\d)", t):
-        score += 1
+    if re.search(NOT_PORTFOLIO, t):
+        return -1
+    years = set(re.findall(r"(?<!\d)(20\d{2})(?!\d)", t))
+    has_mon = bool(re.search(rf"(?<![a-z]){mon}", t))
+    num_mon = bool(re.search(rf"(?<!\d)(20\d{{2}}[-_./]?{m:02d}|{m:02d}[-_./]?20\d{{2}}|{m:02d}[-_./]?{y % 100:02d})(?!\d)", t))
+    if years and str(y) not in years:
+        return -1                                   # a different year is named
+    if (has_mon or num_mon) and (str(y) in years or re.search(rf"{mon}[a-z]*[-_ ]?{y % 100:02d}(?!\d)", t)):
+        score = 10
+    elif has_mon or num_mon:
+        score = 6
+    elif not years:
+        score = 1                                   # undated link: used only if nothing dated is found
+    else:
+        return -1
+    other = [k for k in MONTHS if k != mon and re.search(rf"(?<![a-z]){k}(?![a-z])", t)]
+    if other and not has_mon:
+        return -1
     if re.search(r"portfolio|holding|monthly", t):
         score += 2
-    if re.search(r"fortnight|half.?year|semi|factsheet|riskometer|ter|nav|annual|debt.?only", t):
-        score -= 3
     return score
 
 
@@ -55,8 +69,9 @@ def find_links(page_url, target, session):
     r.raise_for_status()
     links = {urljoin(page_url, h) for h in FILE_RE.findall(r.text)}
     scored = sorted(((_month_score(l, target), l) for l in links), reverse=True)
-    best = [l for s, l in scored if s >= 5]
-    return best[:60], len(links)
+    dated = [l for s, l in scored if s >= 6]
+    best = dated or [l for s, l in scored if s >= 1][:3]
+    return best[:80], len(links)
 
 
 def download_amc(row, target, session, outdir, log):
@@ -174,6 +189,15 @@ def _is_header(row):
     return "isin" in m and "pct" in m, m
 
 
+def clean_title(t):
+    t = re.sub(r"(?i)^\s*(name of (the )?scheme|scheme name|scheme)\s*[:\-]\s*", "", str(t))
+    t = re.sub(r"\(.*?\)", " ", t)                                 # '(An open ended equity scheme ...)'
+    t = re.sub(r"(?i)\b(monthly )?portfolio( statement)?( of)?\b", " ", t)
+    t = re.sub(r"(?i)\s*(for|as on|as at)\s+(the month of\s+)?[a-z]*\s*\d{0,2}(st|nd|rd|th)?[\s,.\-]*\d{4}.*$", "", t)
+    t = re.sub(r"(?i)\s*(for|as on)\s+\w+\s+\d{4}\s*$", "", t)
+    return " ".join(t.split()).strip(" :-,")
+
+
 def _scheme_title(df, upto):
     """Nearest line above a table that looks like a scheme name (not the AMC name or a date line)."""
     for i in range(upto - 1, max(-1, upto - 15), -1):
@@ -264,9 +288,14 @@ def parse_file(path, amc_hint=""):
     if df.empty:
         return df
     # % columns given as fractions (0.0523) -> percent
+    df["scheme_title"] = df.scheme_title.map(clean_title)
     for t, g in df.groupby(["sheet", "scheme_title"]):
-        if g.pct_nav.abs().sum() <= 1.5:
+        if g.pct_nav.abs().max() <= 1.0 and g.pct_nav.clip(lower=0).sum() <= 2.5:
             df.loc[g.index, "pct_nav"] = g.pct_nav * 100
+    # same scheme on several sheets of one file (e.g. repeated summary sheet): keep the fullest sheet
+    n = df.groupby(["scheme_title", "sheet"]).size().rename("n").reset_index()
+    keep = n.sort_values("n", ascending=False).drop_duplicates("scheme_title")[["scheme_title", "sheet"]]
+    df = df.merge(keep, on=["scheme_title", "sheet"])
     df["amc_hint"] = amc_hint
     return df
 
@@ -499,6 +528,11 @@ def run(master, log=print):
         return
     h = classify(pd.concat(frames, ignore_index=True))
     h["month"] = month
+    h["file_score"] = h.source_file.map(lambda f: _month_score(f, target))
+    best = (h.groupby(["amc", "scheme_title", "source_file"]).file_score.first().reset_index()
+            .sort_values("file_score", ascending=False).drop_duplicates(["amc", "scheme_title"]))
+    h = h.merge(best[["amc", "scheme_title", "source_file"]], on=["amc", "scheme_title", "source_file"])
+    h = h[h.file_score >= 0].drop(columns="file_score")
     h["amfi_base"], h["match_score"] = None, np.nan
     for amc, g in h.groupby("amc"):
         mp = match_schemes(g.scheme_title.unique(), master, amc)

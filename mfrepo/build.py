@@ -355,13 +355,39 @@ def main(offline=False):
         navs = norm_navs(nav_store_read())
     else:
         mf = need[need.amfi_code < amfi.SIF_CODE_BASE]
-        navs = norm_navs(refresh_navs(mf, today))
-        got = set(navs.amfi_code.unique())
-        missing = [c for c in mf.amfi_code if c not in got]
-        if missing:
-            fb = safe("nav_fallback", status, amfi.nav_fallback, missing[:400], C.HISTORY_START,
-                      today.date().isoformat(), log, default=None)
-            navs = norm_navs(pd.concat([navs, norm_navs(fb)], ignore_index=True))
+        store = norm_navs(nav_store_read())
+        full = (today.weekday() == C.FULL_REFRESH_WEEKDAY) or len(store) == 0 or "--full" in sys.argv
+        if full:
+            log("NAV mode: FULL history refresh")
+            navs = norm_navs(refresh_navs(mf, today))
+            got = set(navs.amfi_code.unique())
+            missing = [c for c in mf.amfi_code if c not in got]
+            if missing:
+                fb = safe("nav_fallback", status, amfi.nav_fallback, missing[:400], C.HISTORY_START,
+                          today.date().isoformat(), log, default=None)
+                navs = norm_navs(pd.concat([navs, norm_navs(fb)], ignore_index=True))
+            # keep stored history for schemes this refresh could not supply
+            keep_old = store[~store.amfi_code.isin(navs.amfi_code)]
+            navs = norm_navs(pd.concat([keep_old, navs], ignore_index=True))
+        else:
+            log("NAV mode: daily top-up (last 7 days from AMFI)")
+            rec = safe("recent_navs", status, amfi.recent_navs, 7, "mf", log, default=None)
+            rec = norm_navs(rec)
+            # fallback / complement: latest NAV straight from AMFI's NAVAll file
+            nav_all = master_all[["amfi_code", "nav_date", "latest_nav"]].rename(
+                columns={"nav_date": "date", "latest_nav": "nav"})
+            rec = norm_navs(pd.concat([rec, nav_all], ignore_index=True))
+            rec = rec[rec.amfi_code.isin(need.amfi_code)]
+            new_codes = sorted(set(mf.amfi_code) - set(store.amfi_code))
+            if new_codes:                                   # new launches: fetch their history now
+                log(f"  new schemes since last run: {len(new_codes)}")
+                hist = safe("new_scheme_history", status, amfi.nav_history, pd.Timestamp(C.HISTORY_START).date(),
+                            today.date(), set(new_codes), log, default=None)
+                if hist is None or not len(hist):
+                    status["new_scheme_history"] = "ok (no data yet for new schemes)"
+                rec = norm_navs(pd.concat([rec, norm_navs(hist)], ignore_index=True))
+            navs = norm_navs(pd.concat([store, rec], ignore_index=True))
+            log(f"  added {len(navs) - len(store):,} NAV rows")
         if len(sif_n):
             navs = norm_navs(pd.concat([navs, norm_navs(sif_n)], ignore_index=True))
         nav_store_write(navs)
@@ -402,8 +428,11 @@ def main(offline=False):
                series, asof, default={})
 
     # ---------- TER
+    def stale(path, days):
+        return (not path.exists()) or (dt.datetime.now().timestamp() - path.stat().st_mtime) > days * 86400 \
+            or today.weekday() == C.FULL_REFRESH_WEEKDAY
     ter = None
-    if not offline and C.FETCH_TER:
+    if not offline and C.FETCH_TER and stale(C.OUT / "ter.csv", 7):
         ter = safe("ter", status, amfi.ter_latest, log, default=None)
     if ter is None or not len(ter):
         f = C.OUT / "ter.csv"
@@ -469,7 +498,7 @@ def main(offline=False):
     me[["amfi_code", "date", "nav"]].to_csv(C.OUT / "nav_month_end.csv.gz", index=False, compression="gzip")
 
     # ---------- holdings
-    if not offline and C.FETCH_HOLDINGS:
+    if not offline and C.FETCH_HOLDINGS and (stale(C.OUT / "holdings_summary.csv", 7) or 10 <= today.day <= 15):
         from . import holdings
         log("AMC portfolios…")
         safe("holdings", status, holdings.run, master_all, log)

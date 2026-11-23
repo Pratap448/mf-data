@@ -271,16 +271,22 @@ AMFI_API = "https://www.amfiindia.com/api"
 SIF_CODE_BASE = 9_000_000          # SIF ids 'SIF-120' are stored as integer 9000120
 
 
-def _api(path, tries=3, timeout=60):
+def _api(path, tries=6, timeout=60):
+    """GET an AMFI API path; backs off on 429 (rate limit) and transient errors."""
     for i in range(tries):
         try:
             r = requests.get(AMFI_API + path, headers=C.HTTP_HEADERS, timeout=timeout)
+            if r.status_code == 429:
+                wait = int(r.headers.get("Retry-After", 0) or 0) or 15 * (i + 1)
+                time.sleep(min(wait, 120))
+                continue
             r.raise_for_status()
             return r.json()
         except Exception:
             if i == tries - 1:
                 raise
-            time.sleep(3 * (i + 1))
+            time.sleep(5 * (i + 1))
+    raise RuntimeError(f"AMFI API still rate-limited after {tries} tries: {path[:80]}")
 
 
 def latest_all_navs(kind="mf", log=print):
@@ -308,6 +314,33 @@ def latest_all_navs(kind="mf", log=print):
             log(f"  AMFI {kind} latest NAVs: {len(rows):,} on {day}")
             return pd.DataFrame(rows)
     return pd.DataFrame()
+
+
+def recent_navs(days=7, kind="mf", log=print):
+    """Every scheme's NAV for each of the last `days` calendar days (one AMFI request per day).
+    Returns amfi_code, date, nav. SIF codes are mapped to 9,000,000 + n."""
+    path = "/nav-history" if kind == "mf" else "/sif-nav-history"
+    rows = []
+    for back in range(days):
+        day = dt.date.today() - dt.timedelta(days=back)
+        try:
+            js = _api(f"{path}?query_type=all_for_date&from_date={day.isoformat()}")
+        except Exception as e:
+            log(f"  AMFI {kind} NAVs {day}: {e}")
+            continue
+        for amc in js.get("data", []) or []:
+            for sch in amc.get("schemes", []) or []:
+                for n in sch.get("navs", []) or []:
+                    sd = str(n.get("SD_ID", ""))
+                    num = re.sub(r"\D", "", sd)
+                    if not num:
+                        continue
+                    code = int(num) + (SIF_CODE_BASE if kind == "sif" else 0)
+                    rows.append((code, str(n.get("hNAV_Date", ""))[:10], n.get("hNAV_Amt")))
+        time.sleep(0.5)
+    df = pd.DataFrame(rows, columns=["amfi_code", "date", "nav"])
+    log(f"  AMFI {kind} recent NAVs: {len(df):,} rows over {days} days")
+    return df
 
 
 def official_plan_option(master, log=print):
@@ -412,10 +445,9 @@ def sif_data(log=print):
 
 
 # ------------------------------------------------------------------------------------------ TER
-def ter_latest(log=print, page_size=100, workers=6):
+def ter_latest(log=print, page_size=100, workers=1):
     """Latest TER per scheme (Regular & Direct: total, base, brokerage, transaction, statutory) from AMFI.
     Uses the last complete month (falls back one more month if empty)."""
-    from concurrent.futures import ThreadPoolExecutor
     today = dt.date.today().replace(day=1)
     for back in (0, 1, 2):
         m = (today - pd.DateOffset(months=back)).strftime("%m-%Y")
@@ -428,9 +460,11 @@ def ter_latest(log=print, page_size=100, workers=6):
         meta = first.get("meta") or {}
         pages = int(meta.get("pageCount") or 1)
         rows = list(first.get("data") or [])
-        with ThreadPoolExecutor(workers) as ex:
-            for js in ex.map(lambda p: _api(base + f"&page={p}"), range(2, pages + 1)):
-                rows += js.get("data") or []
+        for p in range(2, pages + 1):               # one request at a time: AMFI rate-limits parallel calls
+            rows += _api(base + f"&page={p}").get("data") or []
+            time.sleep(0.4)
+            if p % 100 == 0:
+                log(f"    TER pages {p}/{pages}")
         if not rows:
             continue
         df = pd.DataFrame(rows)

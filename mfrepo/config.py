@@ -16,7 +16,9 @@ ROLLING_WINDOWS = ["1Y", "3Y", "5Y"]         # rolling-return stats in fund_metr
 ROLLING_LOOKBACK_YEARS = 10                  # rolling windows taken from the last N years
 CALENDAR_YEARS = 10                          # calendar-year returns in fund_metrics
 MIN_PEERS = 4                  # rank / quartile only when the peer group has at least this many schemes
-STALE_DAYS = 10                # scheme ignored if its last NAV is older than this vs the as-of date
+STALE_DAYS = 10
+FULL_REFRESH_WEEKDAY = 6       # 0=Mon … 6=Sun: full NAV history re-download (other days add recent NAVs only);
+                               # TER and holdings are also refreshed on this day (and when older than 7 days)                # scheme ignored if its last NAV is older than this vs the as-of date
 
 # kept for older code paths
 ROLL_WINDOW_YEARS = 3
