@@ -2,11 +2,15 @@ name: Refresh MF data
 
 on:
   schedule:
-    - cron: "30 21 1,15 * *"   # 03:00 IST on the 2nd and 16th of every month
+    - cron: "30 0 * * *"       # every day 06:00 IST (AMFI publishes previous day's NAVs by ~23:00 IST)
   workflow_dispatch: {}          # "Run workflow" button for a manual refresh
 
 permissions:
   contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
 
 jobs:
   refresh:
@@ -14,6 +18,8 @@ jobs:
     timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -27,10 +33,16 @@ jobs:
           restore-keys: mfdata-
       - name: Build data
         run: python -m mfrepo.build
-      - name: Commit outputs
+      - name: Commit outputs (replace the previous data commit so the repo does not grow every day)
         run: |
           git config user.name  "mf-data-bot"
           git config user.email "mf-data-bot@users.noreply.github.com"
           git add -A data
-          git commit -m "Data refresh $(date -u +%F)" || echo "No changes"
-          git push
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          if [ "$(git log -1 --format=%an)" = "mf-data-bot" ]; then
+            git commit --amend -m "Data refresh $(date -u +%F)"
+            git push --force-with-lease
+          else
+            git commit -m "Data refresh $(date -u +%F)"
+            git push
+          fi
