@@ -1,24 +1,23 @@
 {
- "as_of": "2026-11-17",
+ "as_of": "2026-11-29",
  "risk_window_end": "2026-10-31",
- "run_at": "2026-11-18T08:47:40",
- "schemes_in_master": 14610,
- "schemes_with_metrics": 9243,
- "nav_histories": 6961,
- "benchmarks_loaded": 274,
- "category_indices": 801,
+ "run_at": "2026-11-28T01:58:44",
+ "schemes_in_master": 14574,
+ "schemes_with_metrics": 9201,
+ "nav_histories": 6988,
+ "benchmarks_loaded": 260,
+ "category_indices": 798,
  "rf_rate": 0.065,
  "risk_freq": "M",
  "status": {
   "official_plan_option": "ok",
   "sif": "ok",
-  "nav_fallback": "ok",
+  "recent_navs": "ok",
+  "new_scheme_history": "ok (no data yet for new schemes)",
   "benchmarks": "ok",
   "nse_prices": "ok",
   "category_index": "ok",
-  "ter": "failed: HTTPError: 429 Client Error: Too Many Requests for url: https://www.amfiindia.com/api/populate-te-rdata-revised?MF_ID=All&Month=11-2026&strCat=-1&strType=-1&pageSize=100&page=2",
-  "attach_ter": "ok",
-  "holdings": "ok"
+  "attach_ter": "ok"
  },
  "files": [
   "COLUMNS.md",
@@ -35,6 +34,7 @@
   "mcap_classification.csv",
   "nav_month_end.csv.gz",
   "run_info.json",
-  "scheme_master.csv"
+  "scheme_master.csv",
+  "ter.csv"
  ]
 }

@@ -19,6 +19,12 @@ Prefix `cat_` = measured against the category-average index instead of the bench
 | benchmark_index |  |
 | isin_growth |  |
 | isin_reinv |  |
+| ter_total | expense ratio % |
+| ter_base | expense ratio % |
+| ter_brokerage | expense ratio % |
+| ter_transaction | expense ratio % |
+| ter_statutory | expense ratio % |
+| ter_date | expense ratio % |
 | first_nav_date |  |
 | last_nav_date |  |
 | last_nav |  |
